@@ -1,28 +1,31 @@
-# $randomNumber = Get-Random -Minimum 3000 -Maximum 9001
-
 function ubuntu {
   docker run -ti -p 80:80 -v "${PWD}:/work" ubuntu bash
 }
 
 function dubuntu {
-  docker run -ti -p 80:80 -v "${PWD}:/work" dtools_ubuntu:latest zsh
+  docker run -ti -p 80:80 -v "${PWD}:/work" julien23/dtools_ubuntu:latest zsh
 }
 
 function kube {
-  docker run -ti -p 80:80 -v "${PWD}:/work" dtools_kube:latest zsh
+  docker run -ti -p 80:80 -v "${PWD}:/work"  -v //var/run/docker.sock:/var/run/docker.sock julien23/dtools_kube:latest zsh
 }
 
+function aws {
+  docker run -it -p 80:80 -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws julien23/dtools_aws:latest zsh
+}
 
-# Check if the script was called with an argument
+function awskube {
+  docker run -it -p 80:80 -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws -v //var/run/docker.sock:/var/run/docker.sock julien23/dtools_awskube:latest zsh
+}
+
+$repo_name = npm view $(Join-Path $PSScriptRoot "..") docker_repository
+
 if ($args.Count -eq 0) {
     Write-Output "Please specify a function to call as an argument."
 } else {
-    # Get the name of the function to call from the first argument
     $functionName = $args[0]
 
-    # Check if the function exists
     if (Get-Command $functionName -ErrorAction SilentlyContinue) {
-        # Call the function with the remaining arguments
         $remainingArgs = $args[1..($args.Count - 1)]
         & $functionName $remainingArgs
     } else {

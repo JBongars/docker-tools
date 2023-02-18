@@ -1,24 +1,31 @@
+function build-and-tag-image {
+  param(
+    [string]$imageName,
+    [string]$version
+  )
 
-function push_container_to_docker_hub($container_name) {
-  $docker_hub_username = "julien23"
-  $docker_hub_repository = $docker_hub_username + "/" + $container_name
-  $tagged_image = $docker_hub_repository + ":latest"
+  $dockerfilePath = Join-Path $scriptPath "images\Dockerfile.${imageName}"
+  $localTagName = "dtools_${imageName}:latest"
+  $tagName = "julien23/dtools_${imageName}:${version}"
+  $latestTagName = "julien23/dtools_${imageName}:latest"
+  $noCacheFlag = if ($noCache) { "--no-cache" } else { "" }
 
-#   docker login --username=$docker_hub_username
-  docker tag $container_name $tagged_image
-  docker push $tagged_image
+  Invoke-Expression "docker build -f ${dockerfilePath} -t ${localTagName} ${noCacheFlag} .."
+  docker tag $localTagName $tagName
+  docker tag $localTagName $latestTagName
 }
 
-# ubuntu
-docker build -f ${PSScriptRoot}\..\images\Dockerfile.ubuntu -t dtools_ubuntu:latest ${PSScriptRoot}\..\.containers
+$noCache = $args.Contains("--no-cache")
+$scriptPath = Split-Path -Parent (Split-Path -Parent (Resolve-Path $MyInvocation.MyCommand.Path))
+$packageJsonPath = Join-Path $scriptPath "package.json"
 
-# docker
-docker build -f ${PSScriptRoot}\..\images\Dockerfile.ubuntu -t dtools_docker:latest ${PSScriptRoot}\..\.containers
+$version = (Get-Content -Path ${packageJsonPath} -Raw | ConvertFrom-Json)."version"
+$repo_name = (Get-Content -Path ${packageJsonPath} -Raw | ConvertFrom-Json)."docker_repository"
 
-# kube
-docker build -f ${PSScriptRoot}\..\images\Dockerfile.kube -t dtools_kube:latest ${PSScriptRoot}\..\.containers
 
-# push all containers to docker hub
-push_container_to_docker_hub "dtools_ubuntu"
-push_container_to_docker_hub "dtools_docker"
-push_container_to_docker_hub "dtools_kube"
+# Call the function for each Docker image to build and tag
+build-and-tag-image "ubuntu" $version $repo_name
+build-and-tag-image "docker" $version $repo_name
+build-and-tag-image "kube" $version $repo_name
+build-and-tag-image "aws" $version $repo_name
+build-and-tag-image "awskube" $version $repo_name

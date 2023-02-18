@@ -2,7 +2,7 @@
 $dockerToolsText = @"
 # ----------
 # DOCKER TOOLS
-Set-Alias -Name de -Value ${PWD}\run.ps1
+Set-Alias -Name de -Value ${PSScriptRoot}\run.ps1
 # ----------
 "@
 
@@ -13,8 +13,6 @@ $profileString = [System.Text.Encoding]::Default.GetString([System.IO.File]::Rea
 if ($profileString.Contains($dockerToolsText)) {
     Write-Output "Docker tools is already installed."
 } else {
-    # Append the Docker tools text to the $PROFILE file
     Add-Content $PROFILE $dockerToolsText
-
     Write-Output "Docker tools has been installed."
 }

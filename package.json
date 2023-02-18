@@ -1,0 +1,10 @@
+{
+  "name": "docker-tools",
+  "version": "1.0.0",
+  "description": "docker tools for development",
+  "main": "index.js",
+  "repository": "https://github.com/JBongars/docker-tools.git",
+  "docker_repository": "julien23",
+  "author": "<julienbongars23@gmail.com>",
+  "license": "MIT"
+}

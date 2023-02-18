@@ -1,4 +1,7 @@
-FROM dtools_docker:latest
+FROM julien23/dtools_ubuntu:latest
+
+# Docker (need to mount docker socket DooD)
+RUN apt-get install -y docker.io
 
 # Kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
