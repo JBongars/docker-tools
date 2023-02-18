@@ -1,0 +1,16 @@
+FROM dtools_docker:latest
+
+# Kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+RUN echo "# kubectl code completion\nsource <(kubectl completion zsh)\n\n" >> ~/.zshrc
+
+# Helm
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+RUN chmod 700 get_helm.sh
+RUN ./get_helm.sh
+
+# Kubernetes Kind
+RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+RUN chmod +x ./kind
+RUN mv ./kind /usr/local/bin/kind
