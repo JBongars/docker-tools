@@ -12,6 +12,10 @@ MIT Free and Open Source
 # Description
 This package provides an easy way to create and configure Docker containers as developer environments. It includes a function to start an Ubuntu container and a script to customize container configuration via command-line arguments. This simplifies the process of setting up and managing containerized development environments.
 
+# Requirements
+- Installation of Docker
+- Signed in to your AWS account on your local machine (if you are using AWS)
+
 ### Pros:
 
 - Simplifies the process of setting up and configuring Docker containers as developer environments.
