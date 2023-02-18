@@ -6,23 +6,23 @@ if [[ "$(ps -p $$ -ocomm=)" != "zsh" ]]; then
 fi
 
 ubuntu() {
-  docker run -ti -p 80:80 -v "${PWD}:/work" ubuntu bash
+  docker run -ti -v "${PWD}:/work" "$@" ubuntu bash
 }
 
 dubuntu() {
-  docker run -ti -p 80:80 -v "${PWD}:/work" julien23/dtools_ubuntu:latest zsh
+  docker run -ti -v "${PWD}:/work" "$@" julien23/dtools_ubuntu:latest zsh
 }
 
 kube() {
-  docker run -ti -p 80:80 -v "${PWD}:/work" -v "/var/run/docker.sock:/var/run/docker.sock" julien23/dtools_kube:latest zsh
+  docker run -ti -v "${PWD}:/work" -v "/var/run/docker.sock:/var/run/docker.sock" "$@" julien23/dtools_kube:latest zsh
 }
 
 aws() {
-  docker run -it -p 80:80 -v "${PWD}:/work" -v "$HOME/.aws:/root/.aws" julien23/dtools_aws:latest zsh
+  docker run -it -v "${PWD}:/work" -v "$HOME/.aws:/root/.aws" "$@" julien23/dtools_aws:latest zsh
 }
 
 awskube() {
-  docker run -it -p 80:80 -v "${PWD}:/work" -v "$HOME/.aws:/root/.aws" -v "/var/run/docker.sock:/var/run/docker.sock" julien23/dtools_awskube:latest zsh
+  docker run -it -v "${PWD}:/work" -v "$HOME/.aws:/root/.aws" -v "/var/run/docker.sock:/var/run/docker.sock" "$@" julien23/dtools_awskube:latest zsh
 }
 
 if [ "$#" -eq 0 ]; then

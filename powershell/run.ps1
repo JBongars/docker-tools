@@ -1,21 +1,21 @@
 function ubuntu {
-  docker run -ti -v "${PWD}:/work" ubuntu bash
+  docker run -ti -v "${PWD}:/work" "$@" ubuntu bash
 }
 
 function dubuntu {
-  docker run -ti -v "${PWD}:/work" julien23/dtools_ubuntu:latest zsh
+  docker run -ti -v "${PWD}:/work" "$@" julien23/dtools_ubuntu:latest zsh
 }
 
 function kube {
-  docker run -ti -v "${PWD}:/work"  -v //var/run/docker.sock:/var/run/docker.sock julien23/dtools_kube:latest zsh
+  docker run -ti -v "${PWD}:/work"  -v //var/run/docker.sock:/var/run/docker.sock "$@" julien23/dtools_kube:latest zsh
 }
 
 function aws {
-  docker run -it -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws julien23/dtools_aws:latest zsh
+  docker run -it -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws "$@" julien23/dtools_aws:latest zsh
 }
 
 function awskube {
-  docker run -it -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws -v //var/run/docker.sock:/var/run/docker.sock julien23/dtools_awskube:latest zsh
+  docker run -it -v ${PWD}:/work -v $env:USERPROFILE\.aws:/root/.aws -v //var/run/docker.sock:/var/run/docker.sock "$@" julien23/dtools_awskube:latest zsh
 }
 
 $repo_name = npm view $(Join-Path $PSScriptRoot "..") docker_repository
