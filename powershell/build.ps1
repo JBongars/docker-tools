@@ -36,7 +36,6 @@ if ($name -ne "") {
   build-and-tag-image "alpine_dind_base" $version $repo_name
   build-and-tag-image "ubuntu" $version $repo_name
   build-and-tag-image "golang" $version $repo_name
-  build-and-tag-image "docker" $version $repo_name
   build-and-tag-image "kube" $version $repo_name
   build-and-tag-image "aws" $version $repo_name
   build-and-tag-image "awskube" $version $repo_name
