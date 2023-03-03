@@ -1,8 +1,5 @@
 FROM julien23/dtools_alpine_dind_base:latest
 
-# # Docker (need to mount docker socket DooD)
-# RUN apk add --no-cache docker
-
 # Kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin

@@ -1,17 +1,7 @@
 FROM ubuntu:latest
 
-# RUN  apk update && apk upgrade
-# RUN  apk add curl tar perl bash vim
-# RUN  apk add dotnet6-sdk libc6-compat build-base gcompat 
-
 RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get -y install libkrb5-3 zlib1g curl tar 
-# RUN apt-get -y install -y libkrb5-3 zlib1g 
-# RUN apt-get -y liblttng-ust1 
-# RUN apt-get -y install libssl1.1$ 
-# RUN apt-get -y install libicu72
-
-# RUN addgroup -S appgroup && adduser -S github -G appgroup
 
 RUN  mkdir actions-runner && cd actions-runner
 RUN chmod 700 /actions-runner
