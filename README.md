@@ -16,6 +16,10 @@ This package provides an easy way to create and configure Docker containers as d
 - Installation of Docker
 - Signed in to your AWS account on your local machine (if you are using AWS)
 
+## Windows
+- Cygwin installed and added to PATH
+- winpty (cygwin version)
+
 ### Pros:
 
 - Simplifies the process of setting up and configuring Docker containers as developer environments.

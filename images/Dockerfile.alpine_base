@@ -1,0 +1,22 @@
+FROM alpine:latest
+
+RUN apk update && apk upgrade
+
+RUN apk add --no-cache  py3-pip \
+                        git \
+                        curl \
+                        wget \
+                        vim \
+                        bash \
+                        zsh \
+                        unzip \
+                        jq \
+                        python3
+
+RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+RUN rm -rf /var/cache/apk/*
+
+ENV PATH="$PATH:/root/.local/bin"
+
+WORKDIR /work
