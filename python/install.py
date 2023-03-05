@@ -1,8 +1,11 @@
 import os
 
+def get_current_path():
+    return os.path.dirname(os.path.realpath(__file__))
+
 def get_profile_path():
     if os.name == 'nt':
-        return os.path.expanduser('~\\Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1')
+        return os.path.expanduser('~\\Documents\PowerShell\Microsoft.PowerShell_profile.ps1')
     elif os.path.isfile(os.path.join(os.path.expanduser('~'), '.zshrc')):
         return os.path.expanduser('~/.zshrc')
     elif os.path.isfile(os.path.join(os.path.expanduser('~'), '.bashrc')):
@@ -11,19 +14,27 @@ def get_profile_path():
         print('No shell configuration file found.')
         exit(1)
 
+def get_alias_string():
+    cwd = get_current_path()
+    if os.name == 'nt':
+        return f"function de {{ & python {cwd}\\run.py $args }}"
+    else:
+        return f"alias de=\"python -m {cwd}/run.py\""
+
 def run():
     # Define the Docker tools alias text
-    docker_tools_text = '''
+    docker_tools_text = f'''
     # ----------
     # DOCKER TOOLS
-    Set-Alias -Name de -Value {0}\\run.py
+    {get_alias_string()}
     # ----------
-    '''.format(os.path.abspath(os.path.dirname(__file__)))
+    '''
+
+    print(docker_tools_text)
 
     # Get the path to the current user's PowerShell profile
     profile_path = get_profile_path()
 
-    # Check if the profile file already contains the Docker tools text
     with open(profile_path, 'r') as f:
         profile_string = f.read()
 
