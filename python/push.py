@@ -1,9 +1,16 @@
 import os
 import subprocess
+import json
+
+def get_package_json():
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    package_json_path = os.path.join(script_path, "..", "package.json")
+
+    with open(package_json_path) as f:
+        return json.load(f)
 
 def get_repo_name():
-    repo_path = os.path.join(os.path.dirname(__file__), '..', '..')
-    return subprocess.check_output(['npm', 'view', repo_path, 'docker_repository'], text=True).strip()
+    return get_package_json()["docker_repository"]
 
 def get_images():
     repo_name = get_repo_name()
@@ -12,8 +19,11 @@ def get_images():
 # Push each image to the Docker registry in parallel
 def push_image(image):
     print(f'{image} is pushing...')
-    subprocess.run(['docker', 'push', image], check=True)
-    print(f'\r{image} done')
+    try:
+        subprocess.run(['docker', 'push', image], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print(f'\r{image} done', flush=True)
+    except subprocess.CalledProcessError as e:
+        print(f'\r{image} failed: {e}', flush=True)
 
 def run():
     images = get_images()

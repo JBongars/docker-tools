@@ -1,11 +1,11 @@
+import os
 import subprocess
 import json
-import os
 import sys
 
 def get_package_json():
     script_path = os.path.dirname(os.path.realpath(__file__))
-    package_json_path = os.path.join(script_path, "package.json")
+    package_json_path = os.path.join(script_path, "..", "package.json")
 
     with open(package_json_path) as f:
         return json.load(f)
@@ -24,7 +24,7 @@ def tag_docker_image(current_tag, next_tag):
 
 def process_docker_image(image_name, version, repo_name, build_args):
     script_path = os.path.dirname(os.path.realpath(__file__))
-    dockerfile_path = os.path.join(script_path, f"images/Dockerfile.{image_name}")
+    dockerfile_path = os.path.join(script_path, "..", f"images/Dockerfile.{image_name}")
 
     local_tag_name = f"dtools_{image_name}:latest"
     tag_name = f"julien23/dtools_{image_name}:{version}"
