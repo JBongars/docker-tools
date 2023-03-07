@@ -4,6 +4,7 @@ RUN apk update && apk upgrade
 
 RUN apk add --no-cache  py3-pip \
                         git \
+                        npm \
                         curl \
                         wget \
                         vim \
@@ -14,6 +15,8 @@ RUN apk add --no-cache  py3-pip \
                         python3
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+RUN npm i -g yarn
 
 RUN rm -rf /var/cache/apk/*
 
