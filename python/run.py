@@ -6,10 +6,9 @@ import argparse
 
 def is_dood():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dood', action='store_true', help='enable dood mode')
+    parser.add_argument('--dood', action='store_true', help='enable dood mode')
     args, unknown = parser.parse_known_args()
-    
-    return '-dood' in args or '-dood' in unknown
+    return args.dood, unknown
 
 def stop_container(container_id):
     print("Stopping container...")
@@ -36,6 +35,9 @@ def safely_exec_container(container_id, exec_string):
 def run_docker_container(image_name, run_dood_string, run_dind_string, exec_dind_string="zsh"):
     
     if is_dood():
+        # ugly patch to remove the --dood flag
+        if "--dood " in run_dood_string:
+            run_dood_string = run_dood_string.replace("--dood", "")
         subprocess.run(run_dood_string, shell=True, check=True)
         return
 
@@ -49,6 +51,9 @@ def ubuntu(args_string):
 
 def dubuntu(args_string):
     subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_ubuntu:latest zsh", shell=True, check=True)
+
+def dubuntu(args_string):
+    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_maven:latest zsh", shell=True, check=True)
 
 def golang(args_string):
     subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_golang:latest zsh", shell=True, check=True)

@@ -1,4 +1,10 @@
-FROM ubuntu:latest
+
+# THIS IS A GENERATED DOCKERFILE.
+# TO CHANGE, PLEASE MODIFY ^/templates/github_actions.dockerfile.j2
+# AND RUN python ^/python/build.py
+# ------------
+
+FROM ubuntu:22.04
 
 RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get -y install libkrb5-3 zlib1g curl tar 

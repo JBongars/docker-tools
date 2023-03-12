@@ -1,0 +1,13 @@
+{% include './base_images/alpine.latest.j2' %}
+
+{% include './modules/alpine/base.j2' %}
+
+# Golang
+RUN apk add --no-cache git make musl-dev go
+
+# Configure Go
+ENV GOROOT /usr/lib/go
+ENV GOPATH /go
+ENV PATH /go/bin:$PATH
+
+RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
