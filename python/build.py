@@ -81,16 +81,17 @@ def build_all_images(build_args):
     for image in images:
         process_docker_image(image, version, repo_name, build_args)
 
-def run():
+def run(args):
     repo_name = get_repo_name()
     version = get_project_version_no()
 
-    if len(sys.argv) > 1:
-        image = sys.argv[1]
-        build_args = "".join(sys.argv[2:])
+    if len(args) > 0:
+        image = args[0]
+        build_args = "".join(args[1:])
         process_docker_image(image, version, repo_name, build_args)
     else:
         build_all_images("")
 
 if __name__ == "__main__":
-    run()
+    args = sys.argv[1:]
+    run(args)

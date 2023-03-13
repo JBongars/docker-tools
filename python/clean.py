@@ -2,7 +2,7 @@
 
 import subprocess
 
-def remove_all_images():
+def run():
     find_command = "docker images --filter \"reference=*/dtools_*\" --format \"{{.Repository}}:{{.Tag}}\""
     remove_command = f"docker rmi $({find_command})"
 
@@ -10,4 +10,4 @@ def remove_all_images():
     print(err)
 
 if __name__ == "__main__":
-    remove_all_images()
+    run()
