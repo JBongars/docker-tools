@@ -4,6 +4,9 @@ import sys
 import signal
 import argparse
 
+def getcwd():
+    return f"\"{os.getcwd()}\""
+
 def is_dood():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dood', action='store_true', help='enable dood mode')
@@ -47,34 +50,34 @@ def run_docker_container(image_name, run_dood_string, run_dind_string, exec_dind
     safely_exec_container(container_id, exec_dind_string)
 
 def ubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} ubuntu:latest bash", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} ubuntu:latest bash", shell=True, check=True)
 
 def dubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_ubuntu:latest zsh", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_ubuntu:latest zsh", shell=True, check=True)
 
 def dubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_maven:latest zsh", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_maven:latest zsh", shell=True, check=True)
 
 def golang(args_string):
-    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work --rm {args_string} julien23/dtools_golang:latest zsh", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_golang:latest zsh", shell=True, check=True)
 
 def kube(args_string):
     image_name = "julien23/dtools_kube:latest"
-    dood_command = f"docker run -ti -v {os.getcwd()}:/work --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
-    dind_command = f"docker run -d -v {os.getcwd()}:/work --privileged {args_string} {image_name}"
+    dood_command = f"docker run -ti -v {getcwd()}:/work --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
+    dind_command = f"docker run -d -v {getcwd()}:/work --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
 def aws(args_string):
-    subprocess.run(f"docker run -it -v {os.getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh", shell=True, check=True)
+    subprocess.run(f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh", shell=True, check=True)
 
 def awskube(args_string):
     image_name = "julien23/dtools_awskube:latest"
-    dood_command = f"docker run -it -v {os.getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
-    dind_command = f"docker run -d -v {os.getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
+    dood_command = f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
+    dind_command = f"docker run -d -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
 def github_actions(args_string):
-    subprocess.run(f"docker run -ti -v {os.getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh", shell=True, check=True)
 
 def run(args):
     if len(args) < 1:
