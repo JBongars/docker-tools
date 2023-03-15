@@ -3,7 +3,7 @@ import glob
 import subprocess
 import json
 import sys
-import jinja2
+import packages.jinja2 as jinja2
 
 def get_template_header(image_name="<template>"):
     return f'''
