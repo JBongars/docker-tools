@@ -7,6 +7,9 @@ import argparse
 def getcwd():
     return f"\"{os.getcwd()}\""
 
+def is_docker_installed():
+    pass
+
 def is_dood():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dood', action='store_true', help='enable dood mode')

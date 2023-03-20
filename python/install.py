@@ -7,11 +7,7 @@ def get_current_path():
 def get_profile_path():
     if os.name == 'nt':
         powershell_profile_stdout = subprocess.run("powershell -Command \"echo $PROFILE\"", capture_output=True)
-        powershell_profile = powershell_profile_stdout.stdout.decode('utf-8').strip()
-
-        print(powershell_profile)
-
-        return powershell_profile
+        return powershell_profile_stdout.stdout.decode('utf-8').strip()
     elif os.path.isfile(os.path.join(os.path.expanduser('~'), '.zshrc')):
         return os.path.expanduser('~/.zshrc')
     elif os.path.isfile(os.path.join(os.path.expanduser('~'), '.bashrc')):
@@ -19,6 +15,22 @@ def get_profile_path():
     else:
         print('No shell configuration file found.')
         exit(1)
+
+def read_file(path):
+    if os.name == 'nt':
+        with open(path, 'r', encoding='utf-16') as f:
+            return f.read()
+    else:
+        with open(path, 'r') as f:
+            return f.read()
+        
+def append_to_file(path, content):
+    if os.name == 'nt':
+        with open(path, 'a', encoding='utf-16') as f:
+            f.write(content)
+    else:
+        with open(path, 'a') as f:
+            f.write(content)
 
 def get_alias_string():
     cwd = get_current_path()
@@ -41,15 +53,15 @@ def run():
     # Get the path to the current user's PowerShell profile
     profile_path = get_profile_path()
 
-    with open(profile_path, 'r', encoding='utf-16') as f:
-        profile_string = f.read()
-
+    profile_string = read_file(profile_path)
+    
     if docker_tools_text in profile_string:
         print('Docker tools is already installed.')
-    else:
-        with open(profile_path, 'a', encoding='utf-16') as f:
-            f.write(docker_tools_text)
-        print('Docker tools has been installed.')
+        return
+
+    append_to_file(profile_path, docker_tools_text) 
+
+    print('Docker tools has been installed.')
 
 if __name__ == "__main__":
     run()
