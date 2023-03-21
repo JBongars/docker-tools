@@ -57,9 +57,12 @@ def tag_docker_image(current_tag, next_tag):
 
 def process_docker_image(image_name, version, repo_name, build_args):
     print("build_args= ", build_args)
-    dockerfile_path = os.path.join(get_project_path(), f"images/{image_name}")
+    # weird quirk where docker needs the relative path not the abs path to build containers
+    dockerfile_path = os.path.join("..", "images", image_name)
 
-    print(dockerfile_path)
+    if not os.path.exists(dockerfile_path):
+        os.makedirs(dockerfile_path)
+        print(f"Directory {dockerfile_path} created")
 
     local_tag_name = f"dtools_{image_name}:latest"
     tag_name = f"{repo_name}/dtools_{image_name}:{version}"

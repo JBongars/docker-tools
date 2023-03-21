@@ -7,9 +7,6 @@ import argparse
 def getcwd():
     return f"\"{os.getcwd()}\""
 
-def is_docker_installed():
-    pass
-
 def is_dood():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dood', action='store_true', help='enable dood mode')
@@ -57,6 +54,9 @@ def ubuntu(args_string):
 
 def dubuntu(args_string):
     subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_ubuntu:latest zsh", shell=True, check=True)
+
+def dalpine(args_string):
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_alpine:latest zsh", shell=True, check=True)
 
 def dubuntu(args_string):
     subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_maven:latest zsh", shell=True, check=True)

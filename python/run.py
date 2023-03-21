@@ -4,6 +4,21 @@ import build
 import clean
 import install
 import push
+import docker
+import os
+
+def is_docker_in_env():
+    try:
+        client = docker.from_env()
+        client.ping()
+        print("Docker is installed and running.")
+        return True
+    except docker.errors.APIError:
+        print("Docker is installed but not running.")
+        return False
+    except docker.errors.DockerException:
+        print("Docker is not installed.")
+        return False
 
 def usage():
     print('Usage: de <comand> <...args>')
@@ -12,6 +27,9 @@ def usage():
 if __name__ == "__main__":
     command = sys.argv[1]
     args = sys.argv[2:]
+    
+    if not is_docker_in_env():
+        os.close(1)
 
     if command in ["r", "run"]:
         container.run(args)
