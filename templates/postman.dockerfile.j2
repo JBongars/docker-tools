@@ -1,0 +1,10 @@
+{% include './base_images/ubuntu.latest.j2' %}
+
+RUN apt-get -y update && apt-get -y upgrade
+RUN apt-get -y install curl tar 
+
+RUN mkdir /postman
+WORKDIR /postman
+
+RUN curl -o postman-agent.tar.gz -L https://dl.pstmn.io/download/latest/linux_64
+RUN tar xzf ./postman-agent.tar.gz

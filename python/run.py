@@ -5,13 +5,11 @@ import clean
 import install
 import push
 import docker
-import os
 
 def is_docker_in_env():
     try:
         client = docker.from_env()
         client.ping()
-        print("Docker is installed and running.")
         return True
     except docker.errors.APIError:
         print("Docker is installed but not running.")
@@ -29,7 +27,8 @@ if __name__ == "__main__":
     args = sys.argv[2:]
     
     if not is_docker_in_env():
-        os.close(1)
+        sys.exit(1)
+
 
     if command in ["r", "run"]:
         container.run(args)

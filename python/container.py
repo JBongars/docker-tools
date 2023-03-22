@@ -53,16 +53,7 @@ def ubuntu(args_string):
     subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} ubuntu:latest bash", shell=True, check=True)
 
 def dubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_ubuntu:latest zsh", shell=True, check=True)
-
-def dalpine(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_alpine:latest zsh", shell=True, check=True)
-
-def dubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_maven:latest zsh", shell=True, check=True)
-
-def golang(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_golang:latest zsh", shell=True, check=True)
+    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} dtools_ubuntu:latest zsh", shell=True, check=True)
 
 def kube(args_string):
     image_name = "julien23/dtools_kube:latest"
@@ -92,7 +83,14 @@ def run(args):
         if function_name in globals():
             globals()[function_name](args_string)
         else:
-            print(f"Function '{function_name}' not found.")
+            print(f"Function '{function_name}' not found. Using default...")
+            try:
+                command = f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_{function_name}:latest zsh"
+                print("command = ", command)
+                subprocess.run(command, shell=True, check=True)
+            except:
+                print(f"Function '{function_name}' could not be run.")
+                sys.exit(1)
 
 if __name__ == "__main__":
     args = sys.argv[1:]

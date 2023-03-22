@@ -1,0 +1,6 @@
+{% include './base_images/alpine.latest.j2' %}
+
+{% include './modules/alpine/base.j2' %}
+
+RUN apk add --no-cache nodejs npm
+RUN npm i -g yarn
