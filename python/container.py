@@ -23,7 +23,7 @@ def get_display_env():
 
 def graphical_application(container, args_string):
     display_ip = get_display_env()
-    subprocess.run(f"docker run -ti -d -e DISPLAY={display_ip} {args_string} {container}", shell=True, check=True)
+    subprocess.run(f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}", shell=True, check=True)
 
 def stop_container(container_id):
     print("Stopping container...")
