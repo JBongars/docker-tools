@@ -13,6 +13,18 @@ def is_dood():
     args, unknown = parser.parse_known_args()
     return args.dood, unknown
 
+def get_display_env():
+    if os.name == 'nt':
+        powershell_command = "(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'vEthernet (WSL)').IPAddress"
+        wsl_port = subprocess.run(f'powershell -Command "{powershell_command}"', capture_output=True, text=True).stdout.rstrip('\n') + ":0"
+        return wsl_port
+    else:
+        print('could not set port... not implemented')
+
+def graphical_application(container, args_string):
+    display_ip = get_display_env()
+    subprocess.run(f"docker run -ti -d -e DISPLAY={display_ip} {args_string} {container}", shell=True, check=True)
+
 def stop_container(container_id):
     print("Stopping container...")
     subprocess.run(f"docker stop {container_id}", shell=True, check=True)
@@ -69,6 +81,13 @@ def awskube(args_string):
     dood_command = f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
     dind_command = f"docker run -d -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
+
+# TODO - add volume mounting for insomnia configuration
+def insomnia(args_string):
+    graphical_application("julien23/dtools_insomnia:latest", f"--cap-add SYS_ADMIN {args_string}")
+
+def firefox(args_string):
+    graphical_application("julien23/dtools_firefox:latest", args_string)
 
 def github_actions(args_string):
     subprocess.run(f"docker run -ti -v {getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh", shell=True, check=True)
