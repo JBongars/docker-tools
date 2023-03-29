@@ -14,7 +14,8 @@ def is_docker_in_env():
     except docker.errors.APIError:
         print("Docker is installed but not running.")
         return False
-    except docker.errors.DockerException:
+    except docker.errors.DockerException as e:
+        print(e)
         print("Docker is not installed.")
         return False
 
