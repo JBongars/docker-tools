@@ -1,0 +1,17 @@
+{% include './base_images/ubuntu.latest.j2' %}
+
+{% include './modules/ubuntu/base.j2' %}
+
+RUN apt-get -y install build-essential
+
+WORKDIR /rust
+
+RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -o rustup.sh
+RUN chmod +x rustup.sh
+RUN ./rustup.sh -y -v
+RUN chmod +x $HOME/.cargo/env
+RUN $HOME/.cargo/env
+
+WORKDIR /work
+RUN rm -rf /rust
+

@@ -1,11 +1,14 @@
+import hashlib
 import os
 import subprocess
 import sys
 import signal
 import argparse
 
+
 def getcwd():
     return f"\"{os.getcwd()}\""
+
 
 def is_dood():
     parser = argparse.ArgumentParser()
@@ -13,17 +16,26 @@ def is_dood():
     args, unknown = parser.parse_known_args()
     return args.dood, unknown
 
+
 def get_display_env():
     if os.name == 'nt':
         powershell_command = "(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'vEthernet (WSL)').IPAddress"
-        wsl_port = subprocess.run(f'powershell -Command "{powershell_command}"', capture_output=True, text=True).stdout.rstrip('\n') + ":0"
+        wsl_port = subprocess.run(
+            f'powershell -Command "{powershell_command}"',
+            capture_output=True,
+            text=True).stdout.rstrip('\n') + ":0"
         return wsl_port
     else:
         print('could not set port... not implemented')
 
+
 def graphical_application(container, args_string):
     display_ip = get_display_env()
-    subprocess.run(f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}", shell=True, check=True)
+    subprocess.run(
+        f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}",
+        shell=True,
+        check=True)
+
 
 def stop_container(container_id):
     print("Stopping container...")
@@ -31,10 +43,11 @@ def stop_container(container_id):
 
     print("Removing container...")
     subprocess.run(f"docker rm {container_id}", shell=True, check=True)
-    
+
+
 def safely_exec_container(container_id, exec_string):
     cleanup_flag = True
-    
+
     def cleanup_handler(_signum, _frame):
         if cleanup_flag:
             stop_container(container_id)
@@ -42,13 +55,19 @@ def safely_exec_container(container_id, exec_string):
     for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGABRT):
         signal.signal(sig, cleanup_handler)
 
-    subprocess.run(f"docker exec -it {container_id} {exec_string}", shell=True, check=True)
+    subprocess.run(f"docker exec -it {container_id} {exec_string}",
+                   shell=True,
+                   check=True)
     stop_container(container_id)
 
     cleanup_flag = False
 
-def run_docker_container(image_name, run_dood_string, run_dind_string, exec_dind_string="zsh"):
-    
+
+def run_docker_container(image_name,
+                         run_dood_string,
+                         run_dind_string,
+                         exec_dind_string="zsh"):
+
     if is_dood():
         # ugly patch to remove the --dood flag
         if "--dood " in run_dood_string:
@@ -57,15 +76,44 @@ def run_docker_container(image_name, run_dood_string, run_dind_string, exec_dind
         return
 
     subprocess.run(run_dind_string, shell=True, check=True)
-    container_id = subprocess.check_output(f"docker ps -q -f ancestor={image_name}", shell=True).decode().strip().split("\n")[0]
+    container_id = subprocess.check_output(
+        f"docker ps -q -f ancestor={image_name}",
+        shell=True).decode().strip().split("\n")[0]
 
     safely_exec_container(container_id, exec_dind_string)
 
+
+def run_local_container(args_string):
+    if not os.path.isfile("Dockerfile"):
+        print("No Dockerfile located in the current directory")
+        sys.exit(1)
+
+    # cwd = getcwd()
+    # id = hashlib.sha256(cwd.encode()).hexdigest()
+    # image_name = f"dlocal-{id}"
+    # subprocess.run(f"docker build . -t {image_name}:latest")
+    # subprocess.run(
+    #     f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
+
+    print('not implemented...')
+
+    subprocess.run
+    sys.exit(0)
+
+
 def ubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} ubuntu:latest bash", shell=True, check=True)
+    subprocess.run(
+        f"docker run -ti -v {getcwd()}:/work --rm {args_string} ubuntu:latest bash",
+        shell=True,
+        check=True)
+
 
 def dubuntu(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work --rm {args_string} dtools_ubuntu:latest zsh", shell=True, check=True)
+    subprocess.run(
+        f"docker run -ti -v {getcwd()}:/work --rm {args_string} dtools_ubuntu:latest zsh",
+        shell=True,
+        check=True)
+
 
 def kube(args_string):
     image_name = "julien23/dtools_kube:latest"
@@ -73,8 +121,13 @@ def kube(args_string):
     dind_command = f"docker run -d -v {getcwd()}:/work --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
+
 def aws(args_string):
-    subprocess.run(f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh", shell=True, check=True)
+    subprocess.run(
+        f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh",
+        shell=True,
+        check=True)
+
 
 def awskube(args_string):
     image_name = "julien23/dtools_awskube:latest"
@@ -82,15 +135,23 @@ def awskube(args_string):
     dind_command = f"docker run -d -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
+
 # TODO - add volume mounting for insomnia configuration
 def insomnia(args_string):
-    graphical_application("julien23/dtools_insomnia:latest", f"--cap-add SYS_ADMIN {args_string}")
+    graphical_application("julien23/dtools_insomnia:latest",
+                          f"--cap-add SYS_ADMIN {args_string}")
+
 
 def firefox(args_string):
     graphical_application("julien23/dtools_firefox:latest", args_string)
 
+
 def github_actions(args_string):
-    subprocess.run(f"docker run -ti -v {getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh", shell=True, check=True)
+    subprocess.run(
+        f"docker run -ti -v {getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh",
+        shell=True,
+        check=True)
+
 
 def run(args):
     if len(args) < 1:
@@ -101,6 +162,8 @@ def run(args):
 
         if function_name in globals():
             globals()[function_name](args_string)
+        elif function_name == ".":
+            run_local_container(args_string)
         else:
             print(f"Function '{function_name}' not found. Using default...")
             try:
@@ -110,6 +173,7 @@ def run(args):
             except:
                 print(f"Function '{function_name}' could not be run.")
                 sys.exit(1)
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]
