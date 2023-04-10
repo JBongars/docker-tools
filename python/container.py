@@ -9,6 +9,8 @@ import argparse
 def getcwd():
     return f"\"{os.getcwd()}\""
 
+def gethomedir():
+    return f"\"{os.path.expanduser('~')}\""
 
 def is_dood():
     parser = argparse.ArgumentParser()
@@ -16,6 +18,12 @@ def is_dood():
     args, unknown = parser.parse_known_args()
     return args.dood, unknown
 
+def attach_git():
+    return f"-v {gethomedir()}/.gitconfig:/root/.gitconfig -v {gethomedir()}/.netrc:/root/.netrc -v {gethomedir()}/.ssh:/root/.ssh -v {gethomedir()}/.git-credentials:/root/.git-credentials"
+    return ""
+
+def attach_work():
+    return f"-v {getcwd()}:/work"
 
 def get_display_env():
     if os.name == 'nt':
@@ -103,36 +111,36 @@ def run_local_container(args_string):
 
 def ubuntu(args_string):
     subprocess.run(
-        f"docker run -ti -v {getcwd()}:/work --rm {args_string} ubuntu:latest bash",
+        f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} ubuntu:latest bash",
         shell=True,
         check=True)
 
 
 def dubuntu(args_string):
     subprocess.run(
-        f"docker run -ti -v {getcwd()}:/work --rm {args_string} dtools_ubuntu:latest zsh",
+        f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} dtools_ubuntu:latest zsh",
         shell=True,
         check=True)
 
 
 def kube(args_string):
     image_name = "julien23/dtools_kube:latest"
-    dood_command = f"docker run -ti -v {getcwd()}:/work --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
-    dind_command = f"docker run -d -v {getcwd()}:/work --privileged {args_string} {image_name}"
+    dood_command = f"docker run -ti {attach_work()} {attach_git()} --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
+    dind_command = f"docker run -d {attach_work()} {attach_git()} --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
 
 def aws(args_string):
     subprocess.run(
-        f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh",
+        f"docker run -it {attach_work()} {attach_git()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh",
         shell=True,
         check=True)
 
 
 def awskube(args_string):
     image_name = "julien23/dtools_awskube:latest"
-    dood_command = f"docker run -it -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
-    dind_command = f"docker run -d -v {getcwd()}:/work -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
+    dood_command = f"docker run -it {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
+    dind_command = f"docker run -d {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
 
@@ -148,7 +156,7 @@ def firefox(args_string):
 
 def github_actions(args_string):
     subprocess.run(
-        f"docker run -ti -v {getcwd()}:/work {args_string} julien23/dtools_github_actions:latest /bin/sh",
+        f"docker run -ti --rm {args_string} julien23/dtools_github_actions:latest",
         shell=True,
         check=True)
 
@@ -167,7 +175,7 @@ def run(args):
         else:
             print(f"Function '{function_name}' not found. Using default...")
             try:
-                command = f"docker run -ti -v {getcwd()}:/work --rm {args_string} julien23/dtools_{function_name}:latest zsh"
+                command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} julien23/dtools_{function_name}:latest zsh"
                 print("command = ", command)
                 subprocess.run(command, shell=True, check=True)
             except:
