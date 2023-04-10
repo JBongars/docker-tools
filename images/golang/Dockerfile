@@ -9,7 +9,8 @@ FROM alpine:3.17.2
 # Alpine Base
 RUN apk update && apk upgrade
 
-RUN apk add --no-cache  py3-pip \
+RUN apk add --no-cache  build-base \
+                        py3-pip \
                         git \
                         npm \
                         curl \
@@ -18,7 +19,10 @@ RUN apk add --no-cache  py3-pip \
                         bash \
                         unzip \
                         jq \
-                        python3
+                        python3 \
+                        python3-dev
+
+RUN pip install --upgrade pip
 
 RUN apk add --no-cache zsh
 
@@ -39,5 +43,8 @@ RUN apk add --no-cache git make musl-dev go
 ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
+
+# Dev tools
+RUN go install golang.org/x/tools/gopls@latest
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin

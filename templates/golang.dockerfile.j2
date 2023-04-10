@@ -10,4 +10,7 @@ ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
+# Dev tools
+RUN go install golang.org/x/tools/gopls@latest
+
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin

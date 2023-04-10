@@ -72,7 +72,7 @@ def tag_docker_image(current_tag, next_tag):
 def process_docker_image(image_name, version, repo_name, build_args):
     print("build_args= ", build_args)
     # weird quirk where docker needs the relative path not the abs path to build containers
-    dockerfile_path = os.path.join("..", "images", image_name)
+    dockerfile_path = os.path.join(get_project_path(), "images", image_name)
 
     if not os.path.exists(dockerfile_path):
         os.makedirs(dockerfile_path)
