@@ -9,8 +9,10 @@ import argparse
 def getcwd():
     return f"\"{os.getcwd()}\""
 
+
 def gethomedir():
     return f"\"{os.path.expanduser('~')}\""
+
 
 def is_dood():
     parser = argparse.ArgumentParser()
@@ -18,12 +20,15 @@ def is_dood():
     args, unknown = parser.parse_known_args()
     return args.dood, unknown
 
+
 def attach_git():
     return f"-v {gethomedir()}/.gitconfig:/root/.gitconfig -v {gethomedir()}/.netrc:/root/.netrc -v {gethomedir()}/.ssh:/root/.ssh -v {gethomedir()}/.git-credentials:/root/.git-credentials"
     return ""
 
+
 def attach_work():
     return f"-v {getcwd()}:/work"
+
 
 def get_display_env():
     if os.name == 'nt':
@@ -96,16 +101,19 @@ def run_local_container(args_string):
         print("No Dockerfile located in the current directory")
         sys.exit(1)
 
-    # cwd = getcwd()
-    # id = hashlib.sha256(cwd.encode()).hexdigest()
-    # image_name = f"dlocal-{id}"
-    # subprocess.run(f"docker build . -t {image_name}:latest")
-    # subprocess.run(
-    #     f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
+    cwd = getcwd()
+    id = hashlib.sha256(cwd.encode()).hexdigest()
+    image_name = f"dlocal-{id}"
 
-    print('not implemented...')
+    print(f"Building image {image_name}...")
+    subprocess.run(f"docker build . -t {image_name}:latest")
 
-    subprocess.run
+    subprocess.run(
+        f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
+
+    print('Cleaning up...')
+    subprocess.run(f"docker rmi {image_name}")
+
     sys.exit(0)
 
 
