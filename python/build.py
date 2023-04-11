@@ -4,6 +4,8 @@ import subprocess
 import json
 import sys
 import jinja2
+import re
+import shutil
 
 
 def get_template_header(image_name="<template>"):
@@ -33,15 +35,41 @@ def get_project_path():
     return os.path.abspath(os.path.join(script_path, ".."))
 
 
+def get_template_path():
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    template_path = os.path.join(script_path, '..', f"templates")
+    return os.path.abspath(template_path)
+
+
 def get_repo_name():
     return get_package_json()["docker_repository"]
 
 
 def get_jinja2_env():
-    script_path = os.path.dirname(os.path.realpath(__file__))
-    jinja_path = os.path.join(script_path, '..', f"templates")
-
+    jinja_path = get_template_path()
     return jinja2.Environment(loader=jinja2.FileSystemLoader(jinja_path))
+
+
+def substitute_copy_paths(template, dockerfile_path):
+    template_path = get_template_path()
+    print("template_path= ", template_path)
+
+    # find all COPY statements
+    pattern = r"COPY\s+((?:\S+/)*\S+)\s+(\S+)"
+    matches = re.findall(pattern, template)
+
+    # copy files and replace COPY statements
+    for src, dest in matches:
+        print(f"copying {src} to {dest}...")
+
+        src_path = os.path.join(template_path, src)
+        dest_path = os.path.join(dockerfile_path, os.path.basename(dest))
+        print(f"src_path= {src_path} dest_path= {dest_path}")
+
+        shutil.copy(src_path, dest_path)
+        template = template.replace(f"COPY {src} {dest}",
+                                    f"COPY ./{os.path.basename(dest)} {dest}")
+    return template
 
 
 def generate_docker_image(dockerfile_path, image_name):
@@ -51,6 +79,9 @@ def generate_docker_image(dockerfile_path, image_name):
 
     if not os.path.exists(dockerfile_path):
         os.makedirs(dockerfile_path)
+
+    rendered_template = substitute_copy_paths(rendered_template,
+                                              dockerfile_path)
 
     with open(f"{dockerfile_path}/Dockerfile", "w") as f:
         f.write(rendered_template)

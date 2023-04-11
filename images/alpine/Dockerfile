@@ -9,7 +9,8 @@ FROM alpine:3.17.2
 # Alpine Base
 RUN apk update && apk upgrade
 
-RUN apk add --no-cache  py3-pip \
+RUN apk add --no-cache  build-base \
+                        py3-pip \
                         git \
                         npm \
                         curl \
@@ -18,7 +19,10 @@ RUN apk add --no-cache  py3-pip \
                         bash \
                         unzip \
                         jq \
-                        python3
+                        python3 \
+                        python3-dev
+
+RUN pip install --upgrade pip
 
 RUN apk add --no-cache zsh
 
@@ -31,3 +35,5 @@ RUN rm -rf /var/cache/apk/*
 ENV PATH="$PATH:/root/.local/bin"
 
 WORKDIR /work
+
+COPY ./.zshrc /root/.zshrc
