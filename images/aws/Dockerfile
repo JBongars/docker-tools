@@ -9,7 +9,8 @@ FROM alpine:3.17.2
 # Alpine Base
 RUN apk update && apk upgrade
 
-RUN apk add --no-cache  py3-pip \
+RUN apk add --no-cache  build-base \
+                        py3-pip \
                         git \
                         npm \
                         curl \
@@ -18,11 +19,16 @@ RUN apk add --no-cache  py3-pip \
                         bash \
                         unzip \
                         jq \
-                        python3
+                        python3 \
+                        python3-dev
+
+RUN pip install --upgrade pip
 
 RUN apk add --no-cache zsh
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+COPY ./.zshrc /root/.zshrc
 
 RUN npm i -g yarn
 
@@ -41,6 +47,9 @@ RUN apk add --no-cache \
         awscli \
     && rm -rf /var/cache/apk/*
     
+RUN apk add python3 py3-pip gcc musl-dev python3-dev
+RUN pip install awscli aws-sam-cli
+RUN sam --version
 # Terraform
 ARG TERRAFORM_VERSION=1.3.9
 

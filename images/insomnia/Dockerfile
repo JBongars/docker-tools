@@ -9,8 +9,8 @@ FROM ubuntu:22.04
 ARG VERSION=2023.1.0
 
 RUN apt-get -y update && apt-get -y upgrade
-
-RUN apt-get -y install apt-transport-https curl libgbm1 libasound2
+RUN apt-get -y install apt-transport-https curl libgbm1 libasound2 npm nodejs
+RUN npm install -g electron
 
 WORKDIR /insomnia
 

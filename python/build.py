@@ -12,7 +12,7 @@ def get_template_header(image_name="<template>"):
     return f'''
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/{image_name}.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py {image_name}
 # ------------
 
 '''

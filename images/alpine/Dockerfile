@@ -28,6 +28,8 @@ RUN apk add --no-cache zsh
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
+COPY ./.zshrc /root/.zshrc
+
 RUN npm i -g yarn
 
 RUN rm -rf /var/cache/apk/*
@@ -35,5 +37,3 @@ RUN rm -rf /var/cache/apk/*
 ENV PATH="$PATH:/root/.local/bin"
 
 WORKDIR /work
-
-COPY ./.zshrc /root/.zshrc

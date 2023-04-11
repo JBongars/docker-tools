@@ -15,6 +15,8 @@ RUN apt -y install python3 python3-pip
 RUN apt -y install git curl vim zsh unzip jq
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+COPY ./.zshrc /root/.zshrc
+
 RUN apt -y upgrade -y && apt-get -y autoremove -y && apt-get -y clean -y
 
 ENV PATH="$PATH:/root/.local/bin"
