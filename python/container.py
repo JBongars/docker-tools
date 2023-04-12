@@ -1,3 +1,4 @@
+import glob
 import hashlib
 import os
 import subprocess
@@ -96,8 +97,25 @@ def run_docker_container(image_name,
     safely_exec_container(container_id, exec_dind_string)
 
 
+def get_local_dockerfile():
+    files = glob.glob("Dockerfile*")
+
+    if not files:
+        return None
+
+    for file in files:
+        if "dev" in file:
+            return file
+        elif file == "Dockerfile":
+            return file
+
+    return files[0]
+
+
 def run_local_container(args_string):
-    if not os.path.isfile("Dockerfile"):
+    dockerfile = get_local_dockerfile()
+
+    if not dockerfile:
         print("No Dockerfile located in the current directory")
         sys.exit(1)
 
@@ -106,7 +124,7 @@ def run_local_container(args_string):
     image_name = f"dlocal-{id}"
 
     print(f"Building image {image_name}...")
-    subprocess.run(f"docker build . -t {image_name}:latest")
+    subprocess.run(f"docker build . -f {dockerfile} -t {image_name}:latest")
 
     subprocess.run(
         f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
