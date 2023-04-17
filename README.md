@@ -146,6 +146,14 @@ login USERNAME
 password TOKEN
 ```
 
+Example:
+
+```bash
+machine github.com
+login someuser@gmail.com
+password ghp_aaasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+```
+
 5. Save the changes to the `.netrc` file and exit the text editor.
 6. Set the file permissions to 604 to make it secure but available to the docker container:
 
