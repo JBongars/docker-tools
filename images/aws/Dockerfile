@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/aws.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py aws
 # ------------
 
 FROM alpine:3.17.2
@@ -55,6 +55,7 @@ ARG TERRAFORM_VERSION=1.3.9
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+RUN rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN mv terraform /usr/bin/terraform
 
 RUN apk add --no-cache terraform

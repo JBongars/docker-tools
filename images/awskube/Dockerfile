@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/awskube.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py awskube
 # ------------
 
 FROM docker:23.0.1-dind-alpine3.17
@@ -62,6 +62,7 @@ ARG TERRAFORM_VERSION=1.3.9
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+RUN rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN mv terraform /usr/bin/terraform
 
 RUN apk add --no-cache terraform
