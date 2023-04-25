@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/github_actions.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py github_actions
 # ------------
 
 FROM ubuntu:22.04

@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/kube.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py kube
 # ------------
 
 FROM docker:23.0.1-dind-alpine3.17

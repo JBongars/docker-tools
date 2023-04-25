@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/alpine.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py alpine
 # ------------
 
 FROM alpine:3.17.2

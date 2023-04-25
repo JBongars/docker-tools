@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/postman.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py postman
 # ------------
 
 FROM ubuntu:22.04

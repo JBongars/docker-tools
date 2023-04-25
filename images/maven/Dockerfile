@@ -1,7 +1,7 @@
 
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/maven.dockerfile.j2
-# AND RUN python ^/python/build.py
+# AND RUN python ^/python/build.py maven
 # ------------
 
 FROM maven:latest
