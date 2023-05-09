@@ -97,15 +97,26 @@ def run_docker_container(image_name,
 
 
 def get_local_dockerfile(path="."):
-    files = glob.glob(f"{path}/Dockerfile*")
+    files = []
+
+    if os.path.isdir(path):
+        files = glob.glob(f"{path}/Dockerfile*")
+    else:
+        files = glob.glob(f"{path}")
 
     if not files:
         return None
 
+    if len(files) == 1:
+        return files[0]
+
+    print(f'Multiple Dockerfiles found...')
     for file in files:
-        if "dev" in file:
-            return file
-        elif file == "Dockerfile":
+        print(f'- {file}')
+
+    # prefer Dockerfile.dev* over Dockerfile
+    for file in files:
+        if "Dockerfile.dev" in file:
             return file
 
     return files[0]
@@ -117,6 +128,8 @@ def run_local_container(path, args_string):
     if not dockerfile:
         print("No Dockerfile located in the current directory")
         sys.exit(1)
+
+    print(f"Using Dockerfile {dockerfile}...")
 
     cwd = getcwd()
     id = hashlib.sha256(cwd.encode()).hexdigest()
