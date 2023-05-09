@@ -24,7 +24,6 @@ def is_dood():
 
 def attach_git():
     return f"-v {gethomedir()}/.gitconfig:/root/.gitconfig -v {gethomedir()}/.netrc:/root/.netrc -v {gethomedir()}/.ssh:/root/.ssh -v {gethomedir()}/.git-credentials:/root/.git-credentials"
-    return ""
 
 
 def attach_work():
