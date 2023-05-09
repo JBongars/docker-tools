@@ -203,23 +203,24 @@ def github_actions(args_string):
 def run(args):
     if len(args) < 1:
         print("Please specify a function to call as an argument.")
-    else:
-        function_name = args[0]
-        args_string = " ".join(args[1:])
+        return
 
-        if function_name in globals():
-            globals()[function_name](args_string)
-        elif function_name[0] == "." or function_name[0] == "/":
-            run_local_container(function_name, args_string)
-        else:
-            print(f"Function '{function_name}' not found. Using default...")
-            try:
-                command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} julien23/dtools_{function_name}:latest zsh"
-                print("command = ", command)
-                subprocess.run(command, shell=True, check=True)
-            except:
-                print(f"Function '{function_name}' could not be run.")
-                sys.exit(1)
+    function_name = args[0]
+    args_string = " ".join(args[1:])
+
+    if function_name in globals():
+        globals()[function_name](args_string)
+    elif function_name[0] == "." or function_name[0] == "/":
+        run_local_container(function_name, args_string)
+    else:
+        print(f"Function '{function_name}' not found. Using default...")
+        try:
+            command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} julien23/dtools_{function_name}:latest zsh"
+            print("command = ", command)
+            subprocess.run(command, shell=True, check=True)
+        except:
+            print(f"Function '{function_name}' could not be run.")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
