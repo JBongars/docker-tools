@@ -97,8 +97,8 @@ def run_docker_container(image_name,
     safely_exec_container(container_id, exec_dind_string)
 
 
-def get_local_dockerfile():
-    files = glob.glob("Dockerfile*")
+def get_local_dockerfile(path="."):
+    files = glob.glob(f"{path}/Dockerfile*")
 
     if not files:
         return None
@@ -112,8 +112,8 @@ def get_local_dockerfile():
     return files[0]
 
 
-def run_local_container(args_string):
-    dockerfile = get_local_dockerfile()
+def run_local_container(path, args_string):
+    dockerfile = get_local_dockerfile(path)
 
     if not dockerfile:
         print("No Dockerfile located in the current directory")
@@ -124,7 +124,8 @@ def run_local_container(args_string):
     image_name = f"dlocal-{id}"
 
     print(f"Building image {image_name}...")
-    subprocess.run(f"docker build . -f {dockerfile} -t {image_name}:latest")
+    subprocess.run(
+        f"docker build {path} -f {dockerfile} -t {image_name}:latest")
 
     subprocess.run(
         f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
@@ -196,8 +197,8 @@ def run(args):
 
         if function_name in globals():
             globals()[function_name](args_string)
-        elif function_name == ".":
-            run_local_container(args_string)
+        elif function_name[0] == "." or function_name[0] == "/":
+            run_local_container(function_name, args_string)
         else:
             print(f"Function '{function_name}' not found. Using default...")
             try:
