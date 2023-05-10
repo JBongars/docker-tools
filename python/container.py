@@ -27,6 +27,7 @@ get_repository = utils.cache_no_args(get_repository_no_cache)
 
 
 def get_dtools_image_name(base_name, version="latest"):
+    print("base_name: ", base_name)
     if ":" in base_name:
         return f"{get_repository()}/dtools_{base_name}"
 
@@ -223,42 +224,17 @@ def github_actions(args_string):
                    check=True)
 
 
-def export_container_state(container_id, state_file):
-    subprocess.run(f"docker export {container_id} > {state_file}",
-                   shell=True,
-                   check=True)
-
-
-def run_container_with_state(function_name, state_file_path, args_string):
-    if not os.path.isfile(state_file_path):
-        print(f"State file {state_file_path} does not exist")
-        sys.exit(1)
-
-    image_name = f"dtools_{function_name}:latest"
-    container_id = subprocess.check_output(
-        f"docker ps -q -f ancestor={image_name}",
-        shell=True).decode().strip().split("\n")[0]
-
-    if not container_id:
-        print(f"Container {image_name} does not exist")
-        sys.exit(1)
-
-    # export_container_state(container_id, state_file_path)
-    # subprocess.run(f"docker rm {container_id}", shell=True, check=True)
-
-    # print(f"Running container {image_name} with state {state_file_path}")
-    # subprocess.run(f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} zsh", shell=True, check=True)
-
-
 def check_if_docker_image_exists_local(image_name, version="latest"):
     try:
+        if not ":" in image_name:
+            image_name = f"{image_name}:{version}"
+
         subprocess.run(
-            f"docker inspect {image_name}:{version}",
+            f"docker inspect {image_name}",
             shell=True,
             check=True,
             stdout=subprocess.DEVNULL,
         )
-        print("return true to", image_name)
         return True
     except:
         return False
@@ -280,20 +256,70 @@ def check_if_docker_image_exists(image_name, version="latest"):
     return check_if_docker_image_exists_remote(image_name, version)
 
 
-def run_container(function_name, args_string):
+def get_image_and_start_script_from_function_name(function_name):
     image_name = get_dtools_image_name(function_name)
     start_script = "zsh"
 
     if not check_if_docker_image_exists(image_name):
-        print(f"Image {image_name} does not exist")
         if not check_if_docker_image_exists(function_name):
             print(f"Image {image_name} does not exist")
             sys.exit(1)
+
+        # override default cmd to open shell
         start_script = "/bin/sh"
         image_name = function_name
 
-    print("image_name = ", image_name)
+    print(f"Using image {image_name}...")
+    return image_name, start_script
 
+
+def get_default_state_file_path():
+    return os.path.join(".", ".dtools", "state.tar")
+
+
+def import_state_to_base_image(image_name, state_file_path):
+    print("Importing state...")
+    new_image = ""
+    subprocess.run(
+        f"docker import {state_file_path} {image_name}",
+        shell=True,
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+
+    return image_name
+
+
+def run_container_with_state(function_name, state_file_path, args_string):
+    image_name, start_script = get_image_and_start_script_from_function_name(
+        function_name)
+
+    state_parent_dir = os.path.dirname(state_file_path)
+    if not os.path.isdir(state_parent_dir):
+        os.makedirs(state_parent_dir)
+
+    if os.path.isfile(state_file_path):
+        image_name = import_state_to_base_image(image_name, state_file_path)
+
+    command = f"docker create -ti {attach_work()} {attach_git()} {args_string} {image_name} {start_script}"
+
+    container_id = subprocess.run(
+        command,
+        shell=True,
+        check=True,
+        stdout=subprocess.PIPE,
+    ).stdout.decode("utf-8").strip()
+
+    subprocess.run(f"docker start -ai {container_id}", shell=True, check=True)
+    subprocess.run(f"docker export {container_id} > {state_file_path}",
+                   shell=True,
+                   check=True)
+    subprocess.run(f"docker rm {container_id}", shell=True, check=True)
+
+
+def run_container(function_name, args_string):
+    image_name, start_script = get_image_and_start_script_from_function_name(
+        function_name)
     command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} {start_script}"
     print("command = ", command)
     return subprocess.run(command, shell=True, check=True)
@@ -316,9 +342,12 @@ def run(args):
     print(f"Function '{function_name}' not found. Using default...")
     try:
         for arg in args_string.split(" "):
-            if arg == "--preserve":
+            if arg == "--persist":
+                print("not implemented yet...")
+                sys.exit(1)
                 args_string_without_preserve = args_string.replace(arg, "")
-                return run_container_with_state(function_name, "",
+                return run_container_with_state(function_name,
+                                                get_default_state_file_path(),
                                                 args_string_without_preserve)
 
         return run_container(function_name, args_string)
