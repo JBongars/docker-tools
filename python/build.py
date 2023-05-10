@@ -87,6 +87,12 @@ def generate_docker_image(dockerfile_path, image_name):
         f.write(rendered_template)
 
 
+def generate_dockerfile_from_docker_image(image_name):
+    # docker history test_image --no-trunc | tail -n +3 | tac | awk -F ' {2,}' '{print $3}'
+    print("Not implemented")
+    pass
+
+
 def build_docker_image(dockerfile_path, local_tag_name, build_args):
     subprocess.run(
         f"docker build -t {local_tag_name} {build_args} {dockerfile_path}",

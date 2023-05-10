@@ -5,6 +5,7 @@ import subprocess
 import sys
 import signal
 import argparse
+import save
 
 
 def getcwd():
@@ -50,7 +51,7 @@ def graphical_application(container, args_string):
         check=True)
 
 
-def stop_container(container_id):
+def stop_container_cleanly(container_id):
     print("Stopping container...")
     subprocess.run(f"docker stop {container_id}", shell=True, check=True)
 
@@ -58,12 +59,14 @@ def stop_container(container_id):
     subprocess.run(f"docker rm {container_id}", shell=True, check=True)
 
 
-def safely_exec_container(container_id, exec_string):
+def safely_exec_container(container_id,
+                          exec_string,
+                          cleanup=stop_container_cleanly):
     cleanup_flag = True
 
     def cleanup_handler(_signum, _frame):
         if cleanup_flag:
-            stop_container(container_id)
+            cleanup(container_id)
 
     for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGABRT):
         signal.signal(sig, cleanup_handler)
@@ -71,7 +74,7 @@ def safely_exec_container(container_id, exec_string):
     subprocess.run(f"docker exec -it {container_id} {exec_string}",
                    shell=True,
                    check=True)
-    stop_container(container_id)
+    cleanup(container_id)
 
     cleanup_flag = False
 
@@ -144,6 +147,25 @@ def run_local_container(path, args_string):
 
     print('Cleaning up...')
     subprocess.run(f"docker rmi {image_name}")
+
+    sys.exit(0)
+
+
+def stop_container_with_persistent_state(container_id, tar_path):
+    print("Stopping container...")
+    subprocess.run(f"docker stop {container_id}", shell=True, check=True)
+
+    print("Saving state...")
+    save.save_container_as_tar(container_id, tar_path)
+
+    print("Removing container...")
+    subprocess.run(f"docker rm {container_id}", shell=True, check=True)
+
+
+def safely_start_container_from_tar(tar_path, args_string):
+    tar_name = tar_path.split("/")[-1].replace(".tar", "")
+
+    subprocess.run(f"docker load -i {tar_path}", shell=True, check=True)
 
     sys.exit(0)
 
