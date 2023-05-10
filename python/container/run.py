@@ -4,74 +4,9 @@ import subprocess
 import sys
 import signal
 
-from .utils import get_dtools_image_name, gethomedir, getcwd
+from .catalogue import get_available_containers
+from .utils import attach_git, attach_work, check_if_docker_image_exists, get_dtools_image_name, gethomedir, getcwd
 from .local_containers import run_local_container
-
-
-def attach_git():
-    return f"-v {gethomedir()}/.gitconfig:/root/.gitconfig -v {gethomedir()}/.netrc:/root/.netrc -v {gethomedir()}/.ssh:/root/.ssh -v {gethomedir()}/.git-credentials:/root/.git-credentials"
-
-
-def attach_work():
-    return f"-v {getcwd()}:/work"
-
-
-def stop_container(container_id):
-    print("Stopping container...")
-    subprocess.run(f"docker stop {container_id}", shell=True, check=True)
-
-    print("Removing container...")
-    subprocess.run(f"docker rm {container_id}", shell=True, check=True)
-
-
-def safely_exec_container(container_id, exec_string):
-    cleanup_flag = True
-
-    def cleanup_handler(_signum, _frame):
-        if cleanup_flag:
-            stop_container(container_id)
-
-    for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGABRT):
-        signal.signal(sig, cleanup_handler)
-
-    subprocess.run(f"docker exec -it {container_id} {exec_string}",
-                   shell=True,
-                   check=True)
-    stop_container(container_id)
-
-    cleanup_flag = False
-
-
-def check_if_docker_image_exists_local(image_name, version="latest"):
-    try:
-        if not ":" in image_name:
-            image_name = f"{image_name}:{version}"
-
-        subprocess.run(
-            f"docker inspect {image_name}",
-            shell=True,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
-        return True
-    except:
-        return False
-
-
-def check_if_docker_image_exists_remote(image_name, version="latest"):
-    if ":" in image_name:
-        image_name, version = image_name.split(":")
-
-    url = f"https://hub.docker.com/v2/repositories/{image_name}/tags/{version}"
-    response = requests.get(url)
-    return response.status_code == 200
-
-
-def check_if_docker_image_exists(image_name, version="latest"):
-    if check_if_docker_image_exists_local(image_name):
-        return True
-
-    return check_if_docker_image_exists_remote(image_name, version)
 
 
 def get_image_and_start_script_from_function_name(function_name):
@@ -151,8 +86,8 @@ def run(args):
     function_name = args[0]
     args_string = " ".join(args[1:])
 
-    if function_name in globals():
-        return globals()[function_name](args_string)
+    if function_name in get_available_containers().keys():
+        return get_available_containers()[function_name](args_string)
 
     if function_name[0] == "." or function_name[0] == "/":
         return run_local_container(function_name, args_string)

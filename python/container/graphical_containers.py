@@ -4,6 +4,13 @@ import subprocess
 from .utils import get_dtools_image_name
 
 
+def availalbe_containers():
+    return {
+        "insomnia": insomnia,
+        "firefox": firefox,
+    }
+
+
 def get_display_env():
     if os.name == 'nt':
         powershell_command = "(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'vEthernet (WSL)').IPAddress"
