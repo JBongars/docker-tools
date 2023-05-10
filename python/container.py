@@ -1,3 +1,5 @@
+import requests
+import utils
 import glob
 import hashlib
 import os
@@ -9,6 +11,26 @@ import argparse
 
 def getcwd():
     return f"\"{os.getcwd()}\""
+
+
+def get_repository_no_cache():
+    package_json_path = os.path.join(getcwd(), "package.json")
+    if os.path.isfile(package_json_path):
+        with open(package_json_path) as f:
+            if not '"docker_repository": "' in f.read():
+                return "julien23"
+            return f.read().split('"docker_repository": "')[1].split('"')[0]
+    return "julien23"
+
+
+get_repository = utils.cache_no_args(get_repository_no_cache)
+
+
+def get_dtools_image_name(base_name, version="latest"):
+    if ":" in base_name:
+        return f"{get_repository()}/dtools_{base_name}"
+
+    return f"{get_repository()}/dtools_{base_name}:{version}"
 
 
 def gethomedir():
@@ -163,7 +185,7 @@ def dubuntu(args_string):
 
 
 def kube(args_string):
-    image_name = "julien23/dtools_kube:latest"
+    image_name = get_dtools_image_name("kube")
     dood_command = f"docker run -ti {attach_work()} {attach_git()} --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
     dind_command = f"docker run -d {attach_work()} {attach_git()} --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
@@ -177,7 +199,7 @@ def aws(args_string):
 
 
 def awskube(args_string):
-    image_name = "julien23/dtools_awskube:latest"
+    image_name = get_dtools_image_name("awskube")
     dood_command = f"docker run -it {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
     dind_command = f"docker run -d {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
@@ -185,19 +207,96 @@ def awskube(args_string):
 
 # TODO - add volume mounting for insomnia configuration
 def insomnia(args_string):
-    graphical_application("julien23/dtools_insomnia:latest",
-                          f"--cap-add SYS_ADMIN {args_string}")
+    image_name = get_dtools_image_name("insomnia")
+    graphical_application(image_name, f"--cap-add SYS_ADMIN {args_string}")
 
 
 def firefox(args_string):
-    graphical_application("julien23/dtools_firefox:latest", args_string)
+    image_name = get_dtools_image_name("firefox")
+    graphical_application(image_name, args_string)
 
 
 def github_actions(args_string):
-    subprocess.run(
-        f"docker run -ti --rm {args_string} julien23/dtools_github_actions:latest",
-        shell=True,
-        check=True)
+    image_name = get_dtools_image_name("github_actions")
+    subprocess.run(f"docker run -ti --rm {args_string} {image_name}",
+                   shell=True,
+                   check=True)
+
+
+def export_container_state(container_id, state_file):
+    subprocess.run(f"docker export {container_id} > {state_file}",
+                   shell=True,
+                   check=True)
+
+
+def run_container_with_state(function_name, state_file_path, args_string):
+    if not os.path.isfile(state_file_path):
+        print(f"State file {state_file_path} does not exist")
+        sys.exit(1)
+
+    image_name = f"dtools_{function_name}:latest"
+    container_id = subprocess.check_output(
+        f"docker ps -q -f ancestor={image_name}",
+        shell=True).decode().strip().split("\n")[0]
+
+    if not container_id:
+        print(f"Container {image_name} does not exist")
+        sys.exit(1)
+
+    # export_container_state(container_id, state_file_path)
+    # subprocess.run(f"docker rm {container_id}", shell=True, check=True)
+
+    # print(f"Running container {image_name} with state {state_file_path}")
+    # subprocess.run(f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} zsh", shell=True, check=True)
+
+
+def check_if_docker_image_exists_local(image_name, version="latest"):
+    try:
+        subprocess.run(
+            f"docker inspect {image_name}:{version}",
+            shell=True,
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+        print("return true to", image_name)
+        return True
+    except:
+        return False
+
+
+def check_if_docker_image_exists_remote(image_name, version="latest"):
+    if ":" in image_name:
+        image_name, version = image_name.split(":")
+
+    url = f"https://hub.docker.com/v2/repositories/{image_name}/tags/{version}"
+    response = requests.get(url)
+    return response.status_code == 200
+
+
+def check_if_docker_image_exists(image_name, version="latest"):
+    if check_if_docker_image_exists_local(image_name):
+        return True
+
+    return check_if_docker_image_exists_remote(image_name, version)
+
+
+def run_container(function_name, args_string):
+    image_name = get_dtools_image_name(function_name)
+    start_script = "zsh"
+
+    if not check_if_docker_image_exists(image_name):
+        print(f"Image {image_name} does not exist")
+        if not check_if_docker_image_exists(function_name):
+            print(f"Image {image_name} does not exist")
+            sys.exit(1)
+        start_script = "/bin/sh"
+        image_name = function_name
+
+    print("image_name = ", image_name)
+
+    command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} {start_script}"
+    print("command = ", command)
+    return subprocess.run(command, shell=True, check=True)
 
 
 def run(args):
@@ -216,9 +315,13 @@ def run(args):
 
     print(f"Function '{function_name}' not found. Using default...")
     try:
-        command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} julien23/dtools_{function_name}:latest zsh"
-        print("command = ", command)
-        subprocess.run(command, shell=True, check=True)
+        for arg in args_string.split(" "):
+            if arg == "--preserve":
+                args_string_without_preserve = args_string.replace(arg, "")
+                return run_container_with_state(function_name, "",
+                                                args_string_without_preserve)
+
+        return run_container(function_name, args_string)
     except:
         print(f"Function '{function_name}' could not be run.")
         sys.exit(1)
