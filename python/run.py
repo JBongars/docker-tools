@@ -1,10 +1,11 @@
 import sys
-import container
+import container.run as container
 import build
 import clean
 import install
 import push
 import docker
+
 
 def is_docker_in_env():
     try:
@@ -19,18 +20,23 @@ def is_docker_in_env():
         print("WARNING: Docker may not be installed.")
         return True
 
+
 def usage():
-    print('Usage: de <comand> <...args>')
-    print('de r|run     = run a container with attached shell')
-    print('de b|build   = build a container and tag it with <repo>/dtools-<container-name>')
-    print('de c|clean   = remove all local instances of dtools containers')
-    print('de install   = creates an alias in $PROFILE or .bashrc or .zshrc so you can all this script using "de"')
-    print('de push      = pushes all local dtool containers to docker hub')
+    help_message = '''
+Usage: de <comand> <...args>
+de r|run     = run a container with attached shell
+de b|build   = build a container and tag it with <repo>/dtools-<container-name>
+de c|clean   = remove all local instances of dtools containers
+de install   = creates an alias in $PROFILE or .bashrc or .zshrc so you can all this script using "de"
+de push      = pushes all local dtool containers to docker hub
+    '''
+    print(help_message)
+
 
 if __name__ == "__main__":
     command = sys.argv[1]
     args = sys.argv[2:]
-    
+
     if not is_docker_in_env():
         sys.exit(1)
 
@@ -46,4 +52,3 @@ if __name__ == "__main__":
         push.run()
     else:
         print(usage())
-    
