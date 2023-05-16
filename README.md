@@ -173,6 +173,73 @@ chmod 604 .netrc
 
 Now, when you run Git commands on your host machine that require authentication with the Git server, Git will use the credentials in the .netrc file to authenticate.
 
+### Graphical Application (with VcXsrv)
+
+#### Installing VcXsrv (Windows)
+
+1. Download the Installer
+
+Navigate to the VcXsrv Windows X Server project page on SourceForge (https://sourceforge.net/projects/vcxsrv/).
+Click the green "Download" button. This will automatically download the latest version of the installer.
+
+2. Run the Installer
+
+Locate the downloaded installer file (vcxsrv-64.1.20.x.x-setup.exe or similar, depending on the version).
+Double-click the installer file to start the installation process.
+Follow the Installation Wizard
+
+4. Adding VcXsrv to Your Path
+
+Find the location of your VcXsrv installation. It's typically installed in C:\Program Files\VcXsrv\, but it may be different depending on your specific setup.
+Add this directory to you path (you can do so by going to Environment Variables > System Variables > Path > Edit > New and adding the directory to the list)
+
+5. Option A: Running VcXsrv using x-launch
+
+Open x-launch from the C:\Program Files\VcXsrv directory and open xlaunch.exe
+Select "Multiple windows", Display number should be -1 and click "Next"
+Select "Start no client" and click "Next"
+Select "Disable access control" and click "Next" **Allow connection from WSL2**
+
+5. Option B: Running running VcXsrv using config.xlaunch
+
+Open the config.xlaunch file using xlaunch.exe.
+If you are not sure how to do this, you can try typing the following command:
+
+```powershell
+& "C:\Program Files\VcXsrv\xlaunch.exe" ".\config.xlaunch"
+```
+
+Again, you need to make sure that the path to xlaunch.exe is correct for your system.
+
+6. Set Up Your Firewall
+
+The first time you run VcXsrv, your firewall may ask you whether you want to allow it to access your private and public networks. Choose the option that best fits your security needs.
+Typically, you'll want to allow it to access your private network but not your public network.
+
+#### Problem - Unauthorized
+
+You see this error on the command line:
+
+```bash
+PS C:\development\docker-tools> de r insomnia
+
+SUCCESS: Specified value was saved.
+command =  docker run -ti --rm -e DISPLAY=172.23.224.1:0.0 --cap-add SYS_ADMIN  julien23/dtools_insomnia:latest
+05:32:49.996 › Running version 2023.1.0
+05:32:50.036 › [electron client protocol] FAILED to set default protocol 'insomnia://'
+05:32:50.082 › [electron client protocol] the current executable is not the default protocol for 'insomnia://'
+05:32:50.136 › [electron client protocol] the default application set for 'insomnia://' is 'insomnia.desktop
+'
+Authorization required, but no authorization protocol specified
+[1:0516/053250.155831:ERROR:ozone_platform_x11.cc(239)] Missing X server or $DISPLAY
+[1:0516/053250.155866:ERROR:env.cc(255)] The platform failed to initialize.  Exiting.
+```
+
+Solution:
+
+You need to make sure your xlaunch is running with the correct configuration including disabling access control.
+Another possibility is that you have a firewall blocking the connection. You can try disabling your firewall to see if that fixes the problem.
+
 # Image Descriptions
 
 ## ubuntu

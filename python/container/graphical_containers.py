@@ -11,24 +11,37 @@ def availalbe_containers():
     }
 
 
+def export_as_env(env_name, env_value):
+    if os.name == 'nt':
+        subprocess.run(f'powershell -Command "setx {env_name} {env_value}"',
+                       shell=True,
+                       check=True)
+    else:
+        subprocess.run(f'export {env_name}={env_value}',
+                       shell=True,
+                       check=True)
+
+
 def get_display_env():
     if os.name == 'nt':
         powershell_command = "(Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias 'vEthernet (WSL)').IPAddress"
         wsl_port = subprocess.run(
             f'powershell -Command "{powershell_command}"',
             capture_output=True,
-            text=True).stdout.rstrip('\n') + ":0"
+            text=True).stdout.rstrip('\n') + ":0.0"
         return wsl_port
     else:
         print('could not set port... not implemented')
 
 
 def graphical_application(container, args_string):
-    display_ip = get_display_env()
-    subprocess.run(
-        f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}",
-        shell=True,
-        check=True)
+    # display_ip = get_display_env()
+    display_ip = "172.23.224.1:0.0"
+    export_as_env("DISPLAY", display_ip)
+
+    command = f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}"
+    print("command = ", command)
+    subprocess.run(command, shell=True, check=True)
 
 
 # TODO - add volume mounting for insomnia configuration
