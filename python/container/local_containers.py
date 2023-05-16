@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-from .utils import getcwd
+from .utils import attach_git, attach_work, getcwd
 
 
 def get_local_dockerfile(path="."):
@@ -51,7 +51,8 @@ def run_local_container(path, args_string):
         f"docker build {path} -f {dockerfile} -t {image_name}:latest")
 
     subprocess.run(
-        f"docker run -it -v {getcwd()}:/work --rm {args_string} {image_name}")
+        f"docker run -it {attach_work()} {attach_git()} --rm {args_string} {image_name}"
+    )
 
     print('Cleaning up...')
     subprocess.run(f"docker rmi {image_name}")
