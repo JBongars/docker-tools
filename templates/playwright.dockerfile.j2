@@ -1,0 +1,5 @@
+FROM mcr.microsoft.com/playwright:v1.32.0-jammy
+
+{% include './modules/ubuntu/base.j2' %}
+
+RUN apt-get install -y firefox

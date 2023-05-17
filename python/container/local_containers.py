@@ -50,9 +50,12 @@ def run_local_container(path, args_string):
     subprocess.run(
         f"docker build {path} -f {dockerfile} -t {image_name}:latest")
 
-    subprocess.run(
-        f"docker run -it {attach_work()} {attach_git()} --rm {args_string} {image_name}"
-    )
+    try:
+        subprocess.run(
+            f"docker run -it {attach_work()} {attach_git()} --rm {args_string} {image_name}"
+        )
+    except:
+        print(f"Container '{image_name}' exited or could not be run.")
 
     print('Cleaning up...')
     subprocess.run(f"docker rmi {image_name}")

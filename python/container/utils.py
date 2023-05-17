@@ -3,6 +3,23 @@ import subprocess
 
 import requests
 
+FLAG_TEMPLATE = "-dtools-"
+
+
+def get_flags(args):
+    flags = []
+    for arg in args.split(" "):
+        if FLAG_TEMPLATE in arg:
+            flags.append(arg.replace(FLAG_TEMPLATE, "-"))
+    return flags
+
+
+def prune_flags(args):
+    flags = get_flags(args)
+    for flag in flags:
+        args = args.replace(f"{FLAG_TEMPLATE}{flag}", "")
+    return flags, args
+
 
 def cache_no_args(f: callable) -> callable:
     result = ""

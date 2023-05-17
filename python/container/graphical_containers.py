@@ -8,6 +8,7 @@ def availalbe_containers():
     return {
         "insomnia": insomnia,
         "firefox": firefox,
+        "playwright": playwright,
     }
 
 
@@ -52,4 +53,9 @@ def insomnia(args_string):
 
 def firefox(args_string):
     image_name = get_dtools_image_name("firefox")
+    graphical_application(image_name, args_string)
+
+
+def playwright(args_string):
+    image_name = get_dtools_image_name("playwright")
     graphical_application(image_name, args_string)

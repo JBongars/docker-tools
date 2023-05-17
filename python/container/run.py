@@ -5,8 +5,9 @@ import sys
 import signal
 
 from .catalogue import get_available_containers
-from .utils import attach_git, attach_work, check_if_docker_image_exists, get_dtools_image_name, gethomedir, getcwd
+from .utils import attach_git, attach_work, check_if_docker_image_exists, get_dtools_image_name, prune_flags
 from .local_containers import run_local_container
+from .temp_container import run_temp_container
 
 
 def get_image_and_start_script_from_function_name(function_name):
@@ -30,49 +31,49 @@ def get_default_state_file_path():
     return os.path.join(".", ".dtools", "state.tar")
 
 
-def import_state_to_base_image(image_name, state_file_path):
-    print("Importing state...")
-    new_image = ""
-    subprocess.run(
-        f"docker import {state_file_path} {image_name}",
-        shell=True,
-        check=True,
-        stdout=subprocess.PIPE,
-    )
+# def import_state_to_base_image(image_name, state_file_path):
+#     print("Importing state...")
+#     new_image = ""
+#     subprocess.run(
+#         f"docker import {state_file_path} {image_name}",
+#         shell=True,
+#         check=True,
+#         stdout=subprocess.PIPE,
+#     )
 
-    return image_name
+#     return image_name
 
+# def run_container_with_state(function_name, state_file_path, args_string):
+#     image_name, start_script = get_image_and_start_script_from_function_name(
+#         function_name)
 
-def run_container_with_state(function_name, state_file_path, args_string):
-    image_name, start_script = get_image_and_start_script_from_function_name(
-        function_name)
+#     state_parent_dir = os.path.dirname(state_file_path)
+#     if not os.path.isdir(state_parent_dir):
+#         os.makedirs(state_parent_dir)
 
-    state_parent_dir = os.path.dirname(state_file_path)
-    if not os.path.isdir(state_parent_dir):
-        os.makedirs(state_parent_dir)
+#     if os.path.isfile(state_file_path):
+#         image_name = import_state_to_base_image(image_name, state_file_path)
 
-    if os.path.isfile(state_file_path):
-        image_name = import_state_to_base_image(image_name, state_file_path)
+#     command = f"docker create -ti {attach_work()} {attach_git()} {args_string} {image_name} {start_script}"
 
-    command = f"docker create -ti {attach_work()} {attach_git()} {args_string} {image_name} {start_script}"
+#     container_id = subprocess.run(
+#         command,
+#         shell=True,
+#         check=True,
+#         stdout=subprocess.PIPE,
+#     ).stdout.decode("utf-8").strip()
 
-    container_id = subprocess.run(
-        command,
-        shell=True,
-        check=True,
-        stdout=subprocess.PIPE,
-    ).stdout.decode("utf-8").strip()
-
-    subprocess.run(f"docker start -ai {container_id}", shell=True, check=True)
-    subprocess.run(f"docker export {container_id} > {state_file_path}",
-                   shell=True,
-                   check=True)
-    subprocess.run(f"docker rm {container_id}", shell=True, check=True)
+#     subprocess.run(f"docker start -ai {container_id}", shell=True, check=True)
+#     subprocess.run(f"docker export {container_id} > {state_file_path}",
+#                    shell=True,
+#                    check=True)
+#     subprocess.run(f"docker rm {container_id}", shell=True, check=True)
 
 
 def run_container(function_name, args_string):
     image_name, start_script = get_image_and_start_script_from_function_name(
         function_name)
+
     command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} {start_script}"
     print("command = ", command)
     return subprocess.run(command, shell=True, check=True)
@@ -84,7 +85,7 @@ def run(args):
         return
 
     function_name = args[0]
-    args_string = " ".join(args[1:])
+    flags, args_string = prune_flags(" ".join(args[1:]))
 
     if function_name in get_available_containers().keys():
         return get_available_containers()[function_name](args_string)
@@ -94,15 +95,6 @@ def run(args):
 
     print(f"Function '{function_name}' not found. Using default...")
     try:
-        for arg in args_string.split(" "):
-            if arg == "--persist":
-                print("not implemented yet...")
-                sys.exit(1)
-                args_string_without_preserve = args_string.replace(arg, "")
-                return run_container_with_state(function_name,
-                                                get_default_state_file_path(),
-                                                args_string_without_preserve)
-
         return run_container(function_name, args_string)
     except:
         print(f"Function '{function_name}' could not be run.")
