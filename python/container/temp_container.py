@@ -3,6 +3,7 @@ import hashlib
 import os
 import shutil
 import subprocess
+import time
 
 from .utils import attach_git, attach_work, getcwd
 
@@ -16,15 +17,13 @@ def get_template_base_path(image_os):
     script_path = get_templates_path()
     base_path = os.path.join(script_path, f"modules/{image_os}/base.j2")
 
-    print("base_path= ", base_path)
-
     return base_path if os.path.exists(base_path) else None
 
 
 def extract_os_from_args(args_string):
     if "--os-" in args_string:
-        return args_string.split("--os-")[1].split(
-            " ")[0], args_string.replace(f"--os-{os}", "")
+        image_os = args_string.split("--os-")[1].split(" ")[0]
+        return image_os, args_string.replace(f"--os-{image_os}", "").strip()
     return None, args_string
 
 
@@ -89,11 +88,21 @@ def get_image_name_version(image):
     return image.split(":")[0], image.split(":")[1]
 
 
+def clean_up_dockerfile(dockerfile_path, tag):
+    command = f"docker rmi {tag}"
+    subprocess.run(command, shell=True)
+
+    for i in range(5):
+        try:
+            shutil.rmtree(dockerfile_path)
+            break
+        except:
+            time.sleep(1)
+
+
 def run_temp_container(image, args_string):
     image_os, args_string = extract_os_from_args(args_string)
     image_name, image_version = get_image_name_version(image)
-
-    print(f"Running container <{image_name}:{image_version}>")
 
     if image_os is None:
         image_os = image_name
@@ -105,11 +114,7 @@ def run_temp_container(image, args_string):
         return
 
     dockerfile_path = create_temp_dockerfile(image_name, image_version, base)
-    print(f"Using Dockerfile {dockerfile_path}...")
-
     tag = build_temp_image(image_name, image_version, dockerfile_path)
-    print(f"Built image {tag}...")
-
     command = f"docker run -it {attach_git()} {attach_work()} --rm {args_string} {tag}"
     print(command)
 
@@ -119,4 +124,4 @@ def run_temp_container(image, args_string):
         print(f"Container '{image_name}' exited or could not be run.")
 
     print('Cleaning up...')
-    # shutil.rmtree(os.path.dirname(dockerfile_path))
+    clean_up_dockerfile(dockerfile_path, tag)
