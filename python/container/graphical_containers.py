@@ -35,12 +35,12 @@ def get_display_env():
         print('could not set port... not implemented')
 
 
-def graphical_application(container, args_string):
+def graphical_application(container, args_string, cmd=None):
     # display_ip = get_display_env()
     display_ip = "172.23.224.1:0.0"
     export_as_env("DISPLAY", display_ip)
 
-    command = f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container}"
+    command = f"docker run -ti --rm -e DISPLAY={display_ip} {args_string} {container} {cmd}"
     print("command = ", command)
     subprocess.run(command, shell=True, check=True)
 
@@ -48,7 +48,8 @@ def graphical_application(container, args_string):
 # TODO - add volume mounting for insomnia configuration
 def insomnia(args_string):
     image_name = get_dtools_image_name("insomnia")
-    graphical_application(image_name, f"--cap-add SYS_ADMIN {args_string}")
+    graphical_application(image_name, f"--cap-add SYS_ADMIN {args_string}",
+                          f"insomnia")
 
 
 def firefox(args_string):

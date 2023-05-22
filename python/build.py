@@ -50,6 +50,20 @@ def get_jinja2_env():
     return jinja2.Environment(loader=jinja2.FileSystemLoader(jinja_path))
 
 
+def save_file_to_path_with_safe_newline(source_path, destination_path):
+    try:
+        if os.path.exists(destination_path):
+            os.remove(destination_path)
+
+        with open(source_path, "r", newline="\n") as src_file:
+            with open(destination_path, "w", newline="\n") as dest_file:
+                dest_file.write(src_file.read())
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
 def substitute_copy_paths(template, dockerfile_path):
     template_path = get_template_path()
     print("template_path= ", template_path)
@@ -66,7 +80,11 @@ def substitute_copy_paths(template, dockerfile_path):
         dest_path = os.path.join(dockerfile_path, os.path.basename(dest))
         print(f"src_path= {src_path} dest_path= {dest_path}")
 
-        shutil.copy(src_path, dest_path)
+        result = save_file_to_path_with_safe_newline(src_path, dest_path)
+        if not result:
+            print(f"failed to copy {src} to {dest}")
+            sys.exit(1)
+
         template = template.replace(f"COPY {src} {dest}",
                                     f"COPY ./{os.path.basename(dest)} {dest}")
     return template
