@@ -20,6 +20,12 @@ def get_template_base_path(image_os):
     return base_path if os.path.exists(base_path) else None
 
 
+def extract_no_cache_from_args(args_string):
+    if "--no-cache" in args_string:
+        return True, args_string.replace("--no-cache", "").strip()
+    return False, args_string
+
+
 def extract_os_from_args(args_string):
     if "--os-" in args_string:
         image_os = args_string.split("--os-")[1].split(" ")[0]
@@ -65,7 +71,7 @@ def create_temp_dockerfile(image, image_version, base):
         f.write(f"FROM {image}:{image_version}\n")
         f.write(base)
         f.write("\n")
-        f.write("CMD [\"/bin/bash\"]")
+        f.write("CMD [\"/bin/zsh\"]")
 
     copy_tree(f"{get_templates_path()}/scripts/",
               f"{docker_folder_path}/scripts/")
@@ -73,9 +79,9 @@ def create_temp_dockerfile(image, image_version, base):
     return docker_folder_path
 
 
-def build_temp_image(image_name, image_version, dockerfile_path):
+def build_temp_image(image_name, image_version, build_args, dockerfile_path):
     tag = f"dtemp-{image_name}:{image_version}"
-    command = f"docker build {dockerfile_path} -t {tag}"
+    command = f"docker build {dockerfile_path} -t {tag} {' '.join(build_args)}"
     print(f"Build command: {command}")
 
     subprocess.run(command, shell=True)
@@ -103,6 +109,7 @@ def clean_up_dockerfile(dockerfile_path, tag):
 def run_temp_container(image, args_string):
     image_os, args_string = extract_os_from_args(args_string)
     image_name, image_version = get_image_name_version(image)
+    no_cache, args_string = extract_no_cache_from_args(args_string)
 
     if image_os is None:
         image_os = image_name
@@ -113,8 +120,13 @@ def run_temp_container(image, args_string):
         print(f"Base template for {image_os} not found.")
         return
 
+    build_args = []
+    if no_cache:
+        build_args.append("--no-cache")
+
     dockerfile_path = create_temp_dockerfile(image_name, image_version, base)
-    tag = build_temp_image(image_name, image_version, dockerfile_path)
+    tag = build_temp_image(image_name, image_version, build_args,
+                           dockerfile_path)
     command = f"docker run -it {attach_git()} {attach_work()} --rm {args_string} {tag}"
     print(command)
 
