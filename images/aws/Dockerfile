@@ -46,7 +46,7 @@ RUN apk add --no-cache \
         py3-pip \
     && pip3 install --upgrade pip \
     && pip3 install --no-cache-dir \
-        awscli \
+        awscliv2 \
     && rm -rf /var/cache/apk/*
     
 RUN apk add python3 py3-pip gcc musl-dev python3-dev
