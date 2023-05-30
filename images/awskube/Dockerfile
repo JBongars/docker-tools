@@ -20,15 +20,19 @@ RUN apk add --no-cache  build-base \
                         unzip \
                         jq \
                         python3 \
-                        python3-dev
+                        python3-dev \
+                        dos2unix
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh
+RUN apk add --no-cache zsh fish
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 COPY ./.zshrc /root/.zshrc
+COPY ./onload.sh /root/onload.sh
+RUN dos2unix /root/.zshrc
+RUN dos2unix /root/onload.sh
 
 RUN npm i -g yarn
 
@@ -54,11 +58,11 @@ RUN apk add --no-cache \
         py3-pip \
     && pip3 install --upgrade pip \
     && pip3 install --no-cache-dir \
-        awscli \
+        awscliv2 \
     && rm -rf /var/cache/apk/*
     
 # Terraform
-ARG TERRAFORM_VERSION=1.3.9
+ARG TERRAFORM_VERSION=1.4.6
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip

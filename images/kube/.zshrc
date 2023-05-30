@@ -8,4 +8,8 @@ if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
 fi
 
+if [ -f ~/onload.sh ]; then
+  . ~/onload.sh
+fi
+
 source $ZSH/oh-my-zsh.sh

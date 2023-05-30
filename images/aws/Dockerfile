@@ -25,12 +25,14 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh
+RUN apk add --no-cache zsh fish
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh
+RUN dos2unix /root/.zshrc
+RUN dos2unix /root/onload.sh
 
 RUN npm i -g yarn
 
@@ -53,7 +55,7 @@ RUN apk add python3 py3-pip gcc musl-dev python3-dev
 RUN pip install awscli aws-sam-cli
 RUN sam --version
 # Terraform
-ARG TERRAFORM_VERSION=1.3.9
+ARG TERRAFORM_VERSION=1.4.6
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
