@@ -33,7 +33,11 @@ de push      = pushes all local dtool containers to docker hub
     print(help_message)
 
 
-if __name__ == "__main__":
+def run():
+    if len(sys.argv) < 2:
+        usage()
+        sys.exit(1)
+
     command = sys.argv[1]
     args = sys.argv[2:]
 
@@ -52,3 +56,7 @@ if __name__ == "__main__":
         push.run()
     else:
         print(usage())
+
+
+if __name__ == "__main__":
+    run()
