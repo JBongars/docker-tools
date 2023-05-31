@@ -1,10 +1,8 @@
 import sys
-import container.run as container
-import build
-import clean
-import install
-import push
 import docker
+
+from pydtools.container import run as container
+from pydtools import build, clean, install, push
 
 
 def is_docker_in_env():
@@ -41,21 +39,28 @@ def run():
     command = sys.argv[1]
     args = sys.argv[2:]
 
+    print(args)
+
     if not is_docker_in_env():
         sys.exit(1)
 
-    if command in ["r", "run"]:
-        container.run(args)
-    elif command in ["b", "build"]:
-        build.run(args)
-    elif command in ["c", "clean"]:
-        clean.run()
-    elif command in ["install"]:
-        install.run()
-    elif command in ["push"]:
-        push.run()
+    command_mapping = {
+        "r": container.run,
+        "run": container.run,
+        "b": build.run,
+        "build": build.run,
+        "c": clean.run,
+        "clean": clean.run,
+        "install": install.run,
+        "push": push.run,
+    }
+
+    func = command_mapping.get(command)
+    if func is not None:
+        func(args)
     else:
-        print(usage())
+        print(f"Invalid command: {command}")
+        usage()
 
 
 if __name__ == "__main__":

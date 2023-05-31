@@ -1,11 +1,10 @@
 from distutils.dir_util import copy_tree
-import hashlib
 import os
 import shutil
 import subprocess
 import time
 
-from .utils import attach_git, attach_work, getcwd
+from pydtools.container import utils
 
 
 def get_templates_path():
@@ -59,8 +58,8 @@ def create_temp_dockerfile(image, image_version, base):
     temp_folder_path = get_temp_folder_path()
     if temp_folder_path is None:
         print("Could not find a temp folder. Creating...")
-        os.mkdir(os.path.join(getcwd(), ".dtemp"))
-        temp_folder_path = os.path.join(getcwd(), ".dtemp")
+        os.mkdir(os.path.join(utils.getcwd(), ".dtemp"))
+        temp_folder_path = os.path.join(utils.getcwd(), ".dtemp")
 
     docker_folder_path = os.path.join(temp_folder_path, f"dtemp-{image}")
     if not os.path.exists(docker_folder_path):
@@ -127,7 +126,7 @@ def run_temp_container(image, args_string):
     dockerfile_path = create_temp_dockerfile(image_name, image_version, base)
     tag = build_temp_image(image_name, image_version, build_args,
                            dockerfile_path)
-    command = f"docker run -it {attach_git()} {attach_work()} --rm {args_string} {tag}"
+    command = f"docker run -it {utils.attach_git()} {utils.attach_work()} --rm {args_string} {tag}"
     print(command)
 
     try:
