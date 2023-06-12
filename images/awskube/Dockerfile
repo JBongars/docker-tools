@@ -52,6 +52,8 @@ RUN apk add --no-cache helm
 RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
 RUN chmod +x ./kind && mv ./kind /usr/local/bin/kind
 
+WORKDIR /tmp
+
 # AWS
 RUN apk add --no-cache \
         python3 \
@@ -61,6 +63,9 @@ RUN apk add --no-cache \
         awscliv2 \
     && rm -rf /var/cache/apk/*
     
+RUN apk add python3 py3-pip gcc musl-dev python3-dev
+RUN pip install awscli aws-sam-cli
+RUN sam --version
 # Terraform
 ARG TERRAFORM_VERSION=1.4.6
 
@@ -73,3 +78,11 @@ RUN apk add --no-cache terraform
 # Ansible
 RUN python3 -m pip install --user ansible
 RUN python3 -m pip install --user argcomplete
+RUN curl -L https://github.com/cli/cli/releases/download/v2.30.0/gh_2.30.0_linux_386.tar.gz > ghcli.tar.gz
+RUN tar -xvf ghcli.tar.gz 
+# RUN ls
+# RUN mv gh_2.30.0_linux_386/bin/gh /bin/gh
+
+RUN echo "alias ghlogin='gh auth login --with-token < /root/.git-credentials/.accesstoken'" >> /root/.zshrc
+
+WORKDIR /work

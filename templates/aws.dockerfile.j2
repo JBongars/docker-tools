@@ -2,7 +2,12 @@
 
 {% include './modules/alpine/base.j2' %}
 
+WORKDIR /tmp
+
 {% include './modules/alpine/aws.j2' %}
 {% include './modules/alpine/aws-sam.j2' %}
 {% include './modules/alpine/terraform.j2' %}
 {% include './modules/alpine/ansible.j2' %}
+{% include './modules/alpine/ghcli.j2' %}
+
+WORKDIR /work

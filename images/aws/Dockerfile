@@ -42,6 +42,8 @@ ENV PATH="$PATH:/root/.local/bin"
 
 WORKDIR /work
 
+WORKDIR /tmp
+
 # AWS
 RUN apk add --no-cache \
         python3 \
@@ -66,3 +68,10 @@ RUN apk add --no-cache terraform
 # Ansible
 RUN python3 -m pip install --user ansible
 RUN python3 -m pip install --user argcomplete
+RUN curl -L https://github.com/cli/cli/releases/download/v2.30.0/gh_2.30.0_linux_386.tar.gz > ghcli.tar.gz
+RUN tar -xvf ghcli.tar.gz 
+RUN cp ./gh_2.30.0_linux_386/bin/gh /bin/gh
+
+RUN echo "alias ghlogin='gh auth login --with-token < /root/.git-credentials/.accesstoken'" >> /root/.zshrc
+
+WORKDIR /work
