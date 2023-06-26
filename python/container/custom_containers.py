@@ -28,7 +28,7 @@ def dubuntu(args_string):
 
 def aws(args_string):
     subprocess.run(
-        f"docker run -it {attach_work()} {attach_git()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} julien23/dtools_aws:latest zsh",
+        f"docker run -it {attach_work()} {attach_git()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh",
         shell=True,
         check=True)
 

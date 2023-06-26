@@ -57,14 +57,12 @@ RUN apk add python3 py3-pip gcc musl-dev python3-dev
 RUN pip install awscli aws-sam-cli
 RUN sam --version
 # Terraform
-ARG TERRAFORM_VERSION=1.4.6
+ARG TERRAFORM_VERSION=1.5.1
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN mv terraform /usr/bin/terraform
-
-RUN apk add --no-cache terraform
 # Ansible
 RUN python3 -m pip install --user ansible
 RUN python3 -m pip install --user argcomplete
