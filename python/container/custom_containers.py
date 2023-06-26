@@ -9,6 +9,7 @@ def availalbe_containers():
         "dubuntu": dubuntu,
         "aws": aws,
         "github_actions": github_actions,
+        "ngrok": ngrok
     }
 
 
@@ -31,6 +32,12 @@ def aws(args_string):
         f"docker run -it {attach_work()} {attach_git()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh",
         shell=True,
         check=True)
+
+
+def ngrok(args_string):
+    subprocess.run("docker run --network host dtools_ngrok:latest",
+                   shell=True,
+                   check=True)
 
 
 def github_actions(args_string):
