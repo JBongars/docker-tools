@@ -1,0 +1,5 @@
+{% include './base_images/alpine.latest.j2' %}
+
+RUN apk add curl tar bash
+
+{% include './modules/alpine/ngrok.j2' %}
