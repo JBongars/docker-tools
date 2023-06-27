@@ -35,9 +35,10 @@ def aws(args_string):
 
 
 def ngrok(args_string):
-    subprocess.run("docker run --network host dtools_ngrok:latest",
-                   shell=True,
-                   check=True)
+    subprocess.run(
+        f"docker run --network host --rm {args_string} dtools_ngrok:latest",
+        shell=True,
+        check=True)
 
 
 def github_actions(args_string):

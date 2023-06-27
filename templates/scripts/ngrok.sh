@@ -6,7 +6,7 @@ if [ -z $NGROK_TOKEN ]; then
 fi
 
 if [ -z $NGROK_PORT ]; then
-    echo "Please set 'NGROK_TOKEN' environment variable."
+    echo "Please set 'NGROK_PORT' environment variable."
     exit 2
 fi
 
