@@ -10,5 +10,10 @@ if [ -z $NGROK_PORT ]; then
     exit 2
 fi
 
+if [ -z $NGROK_PROTOCOL ]; then
+    NGROK_PROTOCOL="http"
+fi
+
 ngrok config add-authtoken $NGROK_TOKEN
-ngrok tcp $NGROK_PORT
+
+ngrok $NGROK_PROTOCOL $NGROK_PORT
