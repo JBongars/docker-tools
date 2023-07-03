@@ -13,6 +13,10 @@ def availalbe_containers():
     }
 
 
+def attach_terraform_token():
+    return f"-v {gethomedir()}/.terraform.d:/root/.terraform.d"
+
+
 def ubuntu(args_string):
     subprocess.run(
         f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} ubuntu:latest bash",
@@ -29,7 +33,7 @@ def dubuntu(args_string):
 
 def aws(args_string):
     subprocess.run(
-        f"docker run -it {attach_work()} {attach_git()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh",
+        f"docker run -it {attach_work()} {attach_git()} {attach_terraform_token()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh",
         shell=True,
         check=True)
 
