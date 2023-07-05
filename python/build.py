@@ -55,9 +55,14 @@ def save_file_to_path_with_safe_newline(source_path, destination_path):
         if os.path.exists(destination_path):
             os.remove(destination_path)
 
-        with open(source_path, "r", newline="\n") as src_file:
-            with open(destination_path, "w", newline="\n") as dest_file:
-                dest_file.write(src_file.read())
+        shutil.copyfile(source_path, destination_path)
+
+        # subprocess.run(f"cp {source_path} {destination_path}",
+        #                shell=True,
+        #                check=True)
+        # with open(source_path, "r", newline="\n") as src_file:
+        #     with open(destination_path, "w", newline="\n") as dest_file:
+        #         dest_file.write(src_file.read())
         return True
     except Exception as e:
         print(e)

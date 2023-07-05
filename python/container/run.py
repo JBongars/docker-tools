@@ -7,6 +7,14 @@ from .local_containers import run_local_container
 from .temp_container import run_temp_container
 
 
+def catch_run_container_return_1(command):
+    try:
+        return command()
+    except subprocess.CalledProcessError as e:
+        print("Error: ", e)
+        sys.exit(0)
+
+
 def get_image_and_start_script_from_function_name(function_name):
     image_name = get_dtools_image_name(function_name)
     start_script = "zsh"
@@ -33,7 +41,7 @@ def run_container(function_name, args_string):
     return subprocess.run(command, shell=True, check=True)
 
 
-def run(args):
+def runner(args):
     if len(args) < 1:
         print("Please specify a function to call as an argument.")
         return
@@ -56,6 +64,10 @@ def run(args):
     except:
         print(f"Function '{function_name}' could not be run.")
         sys.exit(1)
+
+
+def run(args):
+    return catch_run_container_return_1(lambda: runner(args))
 
 
 if __name__ == "__main__":
