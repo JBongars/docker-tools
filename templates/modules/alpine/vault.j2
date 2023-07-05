@@ -1,2 +1,3 @@
 COPY ./bin/vault.tar.gz /tmp/vault.tar.gz
-RUN tar -xzf /tmp/vault.tar.gz -C /usr/local/bin/ && rm /tmp/vault.tar.gz
+RUN tar -xzf /tmp/vault.tar.gz -C /tmp/ && rm /tmp/vault.tar.gz
+RUN mv /tmp/vault/vault /usr/local/bin/vault && rm -rf /tmp/vault

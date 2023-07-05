@@ -64,7 +64,8 @@ RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN mv terraform /usr/bin/terraform
 COPY ./vault.tar.gz /tmp/vault.tar.gz
-RUN tar -xzf /tmp/vault.tar.gz -C /usr/local/bin/ && rm /tmp/vault.tar.gz
+RUN tar -xzf /tmp/vault.tar.gz -C /tmp/ && rm /tmp/vault.tar.gz
+RUN mv /tmp/vault/vault /usr/local/bin/vault && rm -rf /tmp/vault
 # Ansible
 RUN python3 -m pip install --user ansible
 RUN python3 -m pip install --user argcomplete
