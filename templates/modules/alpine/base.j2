@@ -25,10 +25,11 @@ COPY ./scripts/onload.sh /root/onload.sh
 RUN dos2unix /root/.zshrc
 RUN dos2unix /root/onload.sh
 
-RUN apk add nvim
-# add any neovim configuration here
+# Install lua before neovim
+{% include './modules/alpine/lua.j2' %}
 
-{% include './lua.j2' %}
+RUN apk add neovim
+# add any neovim configuration here
 
 RUN npm i -g yarn
 
