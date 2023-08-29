@@ -73,3 +73,5 @@ RUN mv "luarocks-$LUAROCKS_VERSION" luarocks && \
 
 # Install the lua-json package using LuaRocks
 RUN luarocks install lua-json
+
+WORKDIR /work
