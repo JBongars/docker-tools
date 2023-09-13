@@ -27,7 +27,7 @@ Usage: de <comand> <...args>
 de r|run     = run a container with attached shell
 de b|build   = build a container and tag it with <repo>/dtools-<container-name>
 de c|clean   = remove all local instances of dtools containers
-de install   = creates an alias in $PROFILE or .bashrc or .zshrc so you can all this script using "de"
+de install   = creates an alias in $PROFILE or .bashrc or .zshrc so you can call this script using "de"
 de push      = pushes all local dtool containers to docker hub
     '''
     print(help_message)
