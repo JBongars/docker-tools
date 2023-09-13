@@ -3,7 +3,7 @@ import os
 import signal
 import subprocess
 
-from .utils import get_dtools_image_name, attach_git, attach_work
+from .utils import get_dtools_image_name, attach_git, attach_work, set_hostname
 
 
 def availalbe_containers():
@@ -68,13 +68,13 @@ def run_docker_container(image_name,
 
 def kube(args_string):
     image_name = get_dtools_image_name("kube")
-    dood_command = f"docker run -ti {attach_work()} {attach_git()} --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
-    dind_command = f"docker run -d {attach_work()} {attach_git()} --privileged {args_string} {image_name}"
+    dood_command = f"docker run -ti {attach_work()}  {set_hostname('dtools-kube-dood')} {attach_git()} --rm -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} zsh"
+    dind_command = f"docker run -d {attach_work()}  {set_hostname('dtools-kube-dind')} {attach_git()} --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)
 
 
 def awskube(args_string):
     image_name = get_dtools_image_name("awskube")
-    dood_command = f"docker run -it {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
-    dind_command = f"docker run -d {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
+    dood_command = f"docker run -it {attach_work()}  {set_hostname('dtools-awskube-dood')} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws -v /var/run/docker.sock:/var/run/docker.sock --rm {args_string} {image_name} zsh"
+    dind_command = f"docker run -d {attach_work()}  {set_hostname('dtools-awskube-dind')} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws --privileged {args_string} {image_name}"
     run_docker_container(image_name, dood_command, dind_command)

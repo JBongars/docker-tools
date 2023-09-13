@@ -1,5 +1,6 @@
 import os
 import subprocess
+from re import sub as re_sub
 
 import requests
 
@@ -68,6 +69,9 @@ def attach_git():
 def attach_work():
     return f"-v {getcwd()}:/work"
 
+def set_hostname(name):
+    sanitized_name = re_sub(r'[^a-z0-9\-]+', '-', name.lower())
+    return f"--hostname {sanitized_name}"
 
 def check_if_docker_image_exists_local(image_name, version="latest"):
     try:

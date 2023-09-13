@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import time
 
-from .utils import attach_git, attach_work, getcwd
+from .utils import attach_git, attach_work, getcwd, set_hostname
 
 
 def get_templates_path():
@@ -120,6 +120,7 @@ def run_temp_container(image, args_string):
         print(f"Base template for {image_os} not found.")
         return
 
+    hostname = f"t_{image}:{image_version}"
     build_args = []
     if no_cache:
         build_args.append("--no-cache")
@@ -127,7 +128,7 @@ def run_temp_container(image, args_string):
     dockerfile_path = create_temp_dockerfile(image_name, image_version, base)
     tag = build_temp_image(image_name, image_version, build_args,
                            dockerfile_path)
-    command = f"docker run -it {attach_git()} {attach_work()} --rm {args_string} {tag}"
+    command = f"docker run -it {attach_git()} {attach_work()}  {set_hostname(hostname)} --rm {args_string} {tag}"
     print(command)
 
     try:

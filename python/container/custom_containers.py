@@ -1,6 +1,6 @@
 import subprocess
 
-from .utils import get_dtools_image_name, gethomedir, attach_git, attach_work
+from .utils import get_dtools_image_name, gethomedir, attach_git, attach_work, set_hostname
 
 
 def availalbe_containers():
@@ -24,19 +24,19 @@ def run_command(command):
 
 def ubuntu(args_string):
     run_command(
-        f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} ubuntu:latest bash"
+        f"docker run -ti {attach_work()}  {set_hostname('dtools-ubuntu')} {attach_git()} --rm {args_string} ubuntu:latest bash"
     )
 
 
 def dubuntu(args_string):
     run_command(
-        f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} dtools_ubuntu:latest zsh"
+        f"docker run -ti {attach_work()}  {set_hostname('dtools-dubuntu')} {attach_git()} --rm {args_string} dtools_ubuntu:latest zsh"
     )
 
 
 def aws(args_string):
     run_command(
-        f"docker run -it {attach_work()} {attach_git()} {attach_terraform_token()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh"
+        f"docker run -it {attach_work()}  {set_hostname('dtools-aws')} {attach_git()} {attach_terraform_token()} -v {gethomedir()}/.aws:/root/.aws --rm {args_string} dtools_aws:latest zsh"
     )
 
 

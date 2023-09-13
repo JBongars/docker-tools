@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-from .utils import attach_git, attach_work, getcwd
+from .utils import attach_git, attach_work, getcwd, set_hostname
 
 
 def get_local_dockerfile(path="."):
@@ -44,6 +44,9 @@ def run_local_container(path, args_string):
 
     cwd = getcwd()
     id = hashlib.sha256(cwd.encode()).hexdigest()
+    id_truncated = f"{id[:3]}-{id[-3:]}"
+
+    container_hostname = f"dlocal-{id_truncated}"
     image_name = f"dlocal-{id}"
 
     print(f"Building image {image_name}...")
@@ -52,7 +55,7 @@ def run_local_container(path, args_string):
 
     try:
         subprocess.run(
-            f"docker run -it {attach_work()} {attach_git()} --rm {args_string} {image_name}"
+            f"docker run -it {attach_work()}  {set_hostname(container_hostname)}{attach_git()} --rm {args_string} {image_name}"
         )
     except:
         print(f"Container '{image_name}' exited or could not be run.")

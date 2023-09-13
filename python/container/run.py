@@ -2,7 +2,7 @@ import subprocess
 import sys
 
 from .catalogue import get_available_containers
-from .utils import attach_git, attach_work, check_if_docker_image_exists, get_dtools_image_name, prune_flags
+from .utils import attach_git, attach_work, check_if_docker_image_exists, get_dtools_image_name, prune_flags, set_hostname
 from .local_containers import run_local_container
 from .temp_container import run_temp_container
 
@@ -36,7 +36,7 @@ def run_container(function_name, args_string):
     image_name, start_script = get_image_and_start_script_from_function_name(
         function_name)
 
-    command = f"docker run -ti {attach_work()} {attach_git()} --rm {args_string} {image_name} {start_script}"
+    command = f"docker run -ti {attach_work()}  {set_hostname(image_name)} {attach_git()} --rm {args_string} {image_name} {start_script}"
     print("command = ", command)
     return subprocess.run(command, shell=True, check=True)
 
