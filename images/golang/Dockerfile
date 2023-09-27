@@ -26,7 +26,6 @@ RUN apk add --no-cache  build-base \
 RUN pip install --upgrade pip
 
 RUN apk add --no-cache zsh fish
-
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 COPY ./.zshrc /root/.zshrc
