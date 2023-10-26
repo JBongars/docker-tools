@@ -55,7 +55,7 @@ def run_local_container(path, args_string):
 
     try:
         subprocess.run(
-            f"docker run -it {attach_work()}  {set_hostname(container_hostname)}{attach_git()} --rm {args_string} {image_name}"
+            f"docker run -it {attach_work()}  {set_hostname(container_hostname)} {attach_git()} --rm {args_string} {image_name}"
         )
     except:
         print(f"Container '{image_name}' exited or could not be run.")
