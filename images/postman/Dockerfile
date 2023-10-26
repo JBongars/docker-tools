@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py postman
 # ------------
 
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get -y install curl tar 

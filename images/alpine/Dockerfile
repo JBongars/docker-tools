@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py alpine
 # ------------
 
-FROM alpine:3.17.2
+FROM alpine:3.18
 
 # Alpine Base
 RUN apk update && apk upgrade
@@ -25,18 +25,17 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh fish
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Image footer for quality of life improvements 
+
+RUN apk add zsh fish
+RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh
 RUN dos2unix /root/.zshrc
 RUN dos2unix /root/onload.sh
 
-RUN npm i -g yarn
-
 RUN rm -rf /var/cache/apk/*
-
 ENV PATH="$PATH:/root/.local/bin"
 
 WORKDIR /work

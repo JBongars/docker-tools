@@ -20,6 +20,13 @@ def get_template_base_path(image_os):
     return base_path if os.path.exists(base_path) else None
 
 
+def get_template_footer_path(image_os):
+    script_path = get_templates_path()
+    base_path = os.path.join(script_path, f"modules/{image_os}/footer.j2")
+
+    return base_path if os.path.exists(base_path) else None
+
+
 def extract_no_cache_from_args(args_string):
     if "--no-cache" in args_string:
         return True, args_string.replace("--no-cache", "").strip()
@@ -41,8 +48,16 @@ def get_base(image_os):
     if base_path is None:
         return None
 
+    footer = get_template_footer_path(image_os)
+
     with open(base_path) as f:
-        return f.read()
+        base_content = f.read()
+
+    if footer is not None:
+        with open(footer) as f:
+            base_content += f.read()
+
+    return base_content
 
 
 def get_temp_folder_path():

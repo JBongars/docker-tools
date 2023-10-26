@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py golang
 # ------------
 
-FROM alpine:3.17.2
+FROM alpine:3.18
 
 # Alpine Base
 RUN apk update && apk upgrade
@@ -28,19 +28,6 @@ RUN pip install --upgrade pip
 RUN apk add --no-cache zsh fish
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-COPY ./.zshrc /root/.zshrc
-COPY ./onload.sh /root/onload.sh
-RUN dos2unix /root/.zshrc
-RUN dos2unix /root/onload.sh
-
-RUN npm i -g yarn
-
-RUN rm -rf /var/cache/apk/*
-
-ENV PATH="$PATH:/root/.local/bin"
-
-WORKDIR /work
-
 # Golang
 RUN apk add --no-cache git make musl-dev go
 
@@ -53,3 +40,14 @@ ENV PATH /go/bin:$PATH
 RUN go install golang.org/x/tools/gopls@latest
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+
+
+COPY ./.zshrc /root/.zshrc
+COPY ./onload.sh /root/onload.sh
+RUN dos2unix /root/.zshrc
+RUN dos2unix /root/onload.sh
+
+RUN rm -rf /var/cache/apk/*
+ENV PATH="$PATH:/root/.local/bin"
+
+WORKDIR /work

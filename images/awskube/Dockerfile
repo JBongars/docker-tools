@@ -26,21 +26,7 @@ RUN apk add --no-cache  build-base \
 RUN pip install --upgrade pip
 
 RUN apk add --no-cache zsh fish
-
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-COPY ./.zshrc /root/.zshrc
-COPY ./onload.sh /root/onload.sh
-RUN dos2unix /root/.zshrc
-RUN dos2unix /root/onload.sh
-
-RUN npm i -g yarn
-
-RUN rm -rf /var/cache/apk/*
-
-ENV PATH="$PATH:/root/.local/bin"
-
-WORKDIR /work
 
 # Kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -51,6 +37,17 @@ RUN apk add --no-cache helm
 # Kind
 RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
 RUN chmod +x ./kind && mv ./kind /usr/local/bin/kind
+
+
+COPY ./.zshrc /root/.zshrc
+COPY ./onload.sh /root/onload.sh
+RUN dos2unix /root/.zshrc
+RUN dos2unix /root/onload.sh
+
+RUN rm -rf /var/cache/apk/*
+ENV PATH="$PATH:/root/.local/bin"
+
+WORKDIR /work
 
 WORKDIR /tmp
 
@@ -67,7 +64,7 @@ RUN apk add python3 py3-pip gcc musl-dev python3-dev
 RUN pip install awscli aws-sam-cli
 RUN sam --version
 # Terraform
-ARG TERRAFORM_VERSION=1.5.2
+ARG TERRAFORM_VERSION=1.6.2
 
 RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip

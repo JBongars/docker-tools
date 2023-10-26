@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py ngrok
 # ------------
 
-FROM alpine:3.17.2
+FROM alpine:3.18
 
 RUN apk add curl tar bash
 

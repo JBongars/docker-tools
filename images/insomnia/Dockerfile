@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py insomnia
 # ------------
 
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 ARG VERSION=2023.1.0
 
