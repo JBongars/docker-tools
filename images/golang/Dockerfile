@@ -25,22 +25,34 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh fish
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+ARG GO_VERSION=1.21.3
+
+RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN apk update
 
 # Golang
-RUN apk add --no-cache git make musl-dev go
+RUN apk add --no-cache git make musl-dev@testing
+# RUN apk add --no-cache go@testing
+RUN curl -L "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o "/tmp/go.tar.gz"
+RUN mkdir -p /go && tar -C / -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz
 
 # Configure Go
-ENV GOROOT /usr/lib/go
+# ENV GOROOT /usr/lib/go
 ENV GOPATH /go
 ENV PATH /go/bin:$PATH
 
 # Dev tools
 RUN go install golang.org/x/tools/gopls@latest
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+RUN go install github.com/ramya-rao-a/go-outline@latest
+RUN go install github.com/uudashr/gopkgs/v2/cmd/gopkgs@latest
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
+# Image footer for quality of life improvements 
+
+RUN apk add zsh fish
+# RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh

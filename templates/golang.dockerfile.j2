@@ -2,17 +2,6 @@
 
 {% include './modules/alpine/base.j2' %}
 
-# Golang
-RUN apk add --no-cache git make musl-dev go
-
-# Configure Go
-ENV GOROOT /usr/lib/go
-ENV GOPATH /go
-ENV PATH /go/bin:$PATH
-
-# Dev tools
-RUN go install golang.org/x/tools/gopls@latest
-
-RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+{% include './modules/alpine/golang.j2' %}
 
 {% include './modules/alpine/footer.j2' %}
