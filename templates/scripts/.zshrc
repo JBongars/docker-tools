@@ -1,5 +1,6 @@
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
+source $ZSH/oh-my-zsh.sh
 
 cap () { tee /tmp/capture.out; }
 ret () { cat /tmp/capture.out; }
@@ -12,4 +13,39 @@ if [ -f ~/onload.sh ]; then
   . ~/onload.sh
 fi
 
-source $ZSH/oh-my-zsh.sh
+force_execute(){
+  if [ -z "$1" ]; then
+    echo "Usage: force_execute <command>"
+    return 1
+  fi
+  local command="$1"
+  shift
+  local args="$@"
+  
+  if [ -f $command ]; then
+    dos2unix $command
+  fi
+  chmod +x $command
+
+  $command $args
+}
+alias f="force_execute"
+
+do_until_sucess(){
+  if [ -z "$1" ]; then
+    echo "Usage: do_until_sucess <command>"
+    return 1
+  fi
+  local command="$@"
+  local retries=0
+
+  while true; do
+    $command
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    retries=$((retries+1))
+    echo "Retrying $command... ($retries)"
+  done
+}
+alias dus="do_until_sucess"

@@ -14,3 +14,5 @@ ENV PATH /go/bin:$PATH
 RUN go install golang.org/x/tools/gopls@latest
 
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
+
+{% include './modules/alpine/footer.j2' %}

@@ -1,0 +1,10 @@
+
+COPY ./scripts/.zshrc /root/.zshrc
+COPY ./scripts/onload.sh /root/onload.sh
+RUN dos2unix /root/.zshrc
+RUN dos2unix /root/onload.sh
+
+RUN rm -rf /var/cache/apk/*
+ENV PATH="$PATH:/root/.local/bin"
+
+WORKDIR /work
