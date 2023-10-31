@@ -25,9 +25,6 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh fish
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
 # Kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin
@@ -38,6 +35,12 @@ RUN apk add --no-cache helm
 RUN curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
 RUN chmod +x ./kind && mv ./kind /usr/local/bin/kind
 
+# Image footer for quality of life improvements 
+
+RUN apk add util-linux
+
+RUN apk add zsh fish
+# RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh

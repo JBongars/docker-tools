@@ -25,6 +25,7 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
+
 ARG GO_VERSION=1.21.3
 
 RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
@@ -50,6 +51,8 @@ RUN go install github.com/uudashr/gopkgs/v2/cmd/gopkgs@latest
 RUN mkdir -p ${GOPATH}/src ${GOPATH}/bin
 
 # Image footer for quality of life improvements 
+
+RUN apk add util-linux
 
 RUN apk add zsh fish
 # RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"

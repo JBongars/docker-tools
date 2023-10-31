@@ -60,8 +60,10 @@ RUN echo "alias ghlogin='gh auth login --with-token < /root/.git-credentials/.ac
 
 # Image footer for quality of life improvements 
 
+RUN apk add util-linux
+
 RUN apk add zsh fish
-RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+# RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh

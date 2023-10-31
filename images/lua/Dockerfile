@@ -25,9 +25,6 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh fish
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
 RUN apk add build-base readline-dev curl
 
 WORKDIR /tmp/lua
@@ -60,6 +57,12 @@ RUN mv "luarocks-$LUAROCKS_VERSION" luarocks && \
 # Install the lua-json package using LuaRocks
 RUN luarocks install lua-json
 
+# Image footer for quality of life improvements 
+
+RUN apk add util-linux
+
+RUN apk add zsh fish
+# RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
 COPY ./onload.sh /root/onload.sh
