@@ -10,18 +10,18 @@ FROM alpine:3.18
 RUN apk update && apk upgrade
 
 RUN apk add --no-cache  build-base \
-                        py3-pip \
-                        git \
-                        npm \
-                        curl \
-                        wget \
-                        vim \
-                        bash \
-                        unzip \
-                        jq \
-                        python3 \
-                        python3-dev \
-                        dos2unix
+    py3-pip \
+    git \
+    npm \
+    curl \
+    wget \
+    vim \
+    bash \
+    unzip \
+    jq \
+    python3 \
+    python3-dev \
+    dos2unix
 
 RUN pip install --upgrade pip
 
@@ -29,13 +29,13 @@ WORKDIR /tmp
 
 # AWS
 RUN apk add --no-cache \
-        python3 \
-        py3-pip \
+    python3 \
+    py3-pip \
     && pip3 install --upgrade pip \
     && pip3 install --no-cache-dir \
-        awscliv2 \
+    awscliv2 \
     && rm -rf /var/cache/apk/*
-    
+
 RUN apk add python3 py3-pip gcc musl-dev python3-dev
 RUN pip install awscli aws-sam-cli
 RUN sam --version

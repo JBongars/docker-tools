@@ -1,7 +1,7 @@
 {% include './base_images/jellyfish.j2' %}
 
 RUN apt-get -y update && apt-get -y upgrade
-RUN apt-get -y install libkrb5-3 zlib1g curl tar jq python3 python3-pip git
+RUN apt-get -y install libkrb5-3 zlib1g curl tar jq python3 python3-pip git bash
 
 RUN  mkdir actions-runner && cd actions-runner
 RUN chmod 700 /actions-runner
@@ -13,6 +13,12 @@ RUN curl -o actions-runner-linux-x64-2.301.1.tar.gz -L https://github.com/action
 RUN  echo "3ee9c3b83de642f919912e0594ee2601835518827da785d034c1163f8efdf907  actions-runner-linux-x64-2.301.1.tar.gz" | sha256sum -c
 RUN  tar xzf ./actions-runner-linux-x64-2.301.1.tar.gz
 RUN /bin/bash ./bin/installdependencies.sh
+
+# Github CLI
+# ---------------------------------------------
+RUN curl -L https://github.com/cli/cli/releases/download/v2.30.0/gh_2.30.0_linux_386.tar.gz > ghcli.tar.gz
+RUN tar -xvf ghcli.tar.gz 
+RUN cp ./gh_2.30.0_linux_386/bin/gh /bin/gh
 
 # Sudo User for Github Actions Runner
 # ---------------------------------------------
@@ -31,9 +37,10 @@ RUN sudo /tmp/aws/install
 
 USER runner
 
+ENV GITHUB_PAT_TOKEN ""
 ENV GITHUB_REPO_URL ""
 ENV GITHUB_TOKEN ""
 
 COPY ./scripts/github_actions.sh /actions-runner/init.sh
 
-ENTRYPOINT ["/actions-runner/init.sh"]
+ENTRYPOINT ["bash", "-c", "/actions-runner/init.sh"]
