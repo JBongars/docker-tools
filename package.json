@@ -1,6 +1,6 @@
 {
   "name": "docker-tools",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "docker tools for development",
   "main": "index.js",
   "repository": "https://github.com/JBongars/docker-tools.git",
