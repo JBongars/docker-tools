@@ -2,7 +2,6 @@
 
 set -e
 set -u
-set -x
 
 script_dir=$(dirname $0)
 environment_file="~/.github_actions"
@@ -16,7 +15,7 @@ pat_token=${GITHUB_PAT_TOKEN:-}
 # looks something like this: https://github.com/owner/my-repo
 repo_url=${GITHUB_REPO_URL:-}
 runner_name=${GITHUB_RUNNER_NAME:-"$(hostname)"}
-self_hosted_token=${GITHUB_TOKEN:-}
+export self_hosted_token=${GITHUB_TOKEN:-}
 owner=$(echo $repo_url | cut -d'/' -f4)
 repo=$(echo $repo_url | cut -d'/' -f5)
 is_configured=${GITHUB_IS_CONFIGURED:-}
