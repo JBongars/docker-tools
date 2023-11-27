@@ -86,9 +86,10 @@ def save_file_to_path_with_safe_newline(source_path, destination_path):
         return False
 
 
-def substitute_copy_paths(template, dockerfile_path):
+def substitute_copy_paths(template, dockerfile_path, verbose):
     template_path = get_template_path()
-    print("template_path= ", template_path)
+    if verbose:
+        print("template_path= ", template_path)
 
     # find all COPY statements
     pattern = r"COPY\s+((?:\S+/)*\S+)\s+(\S+)"
@@ -96,11 +97,13 @@ def substitute_copy_paths(template, dockerfile_path):
 
     # copy files and replace COPY statements
     for src, dest in matches:
-        print(f"copying {src} to {dest}...")
+        if verbose:
+            print(f"copying {src} to {dest}...")
 
         src_path = os.path.join(template_path, src)
         dest_path = os.path.join(dockerfile_path, os.path.basename(dest))
-        print(f"src_path= {src_path} dest_path= {dest_path}")
+        if verbose:
+            print(f"src_path= {src_path} dest_path= {dest_path}")
 
         result = save_file_to_path_with_safe_newline(src_path, dest_path)
         if not result:
@@ -113,7 +116,7 @@ def substitute_copy_paths(template, dockerfile_path):
     return template
 
 
-def generate_docker_image(dockerfile_path, image_name):
+def generate_docker_image(dockerfile_path, image_name, verbose):
     env = get_jinja2_env()
     extension = get_project_extension()
     template = env.get_template(f"{image_name}{extension}")
@@ -122,7 +125,9 @@ def generate_docker_image(dockerfile_path, image_name):
     if not os.path.exists(dockerfile_path):
         os.makedirs(dockerfile_path)
 
-    rendered_template = substitute_copy_paths(rendered_template, dockerfile_path)
+    rendered_template = substitute_copy_paths(
+        rendered_template, dockerfile_path, verbose
+    )
 
     with open(f"{dockerfile_path}/Dockerfile", "w") as f:
         f.write(rendered_template)
@@ -155,7 +160,7 @@ def process_docker_image(
     version_tag_name = f"{repo_name}/dtools_{image_name}:{version}"
     latest_tag_name = f"{repo_name}/dtools_{image_name}:latest"
 
-    generate_docker_image(dockerfile_path, image_name)
+    generate_docker_image(dockerfile_path, image_name, verbose)
 
     if not dryrun:
         build_docker_image(dockerfile_path, local_tag_name, build_args)
@@ -190,9 +195,17 @@ def run(args):
 
     images = get_all_templates()
     for i, image in enumerate(images):
-        if verbose:
-            print(f"({i + 1} of {len(images)}) building {image}...)")
+        print(
+            f"""--------------------------------
+({i + 1} of {len(images)}) building {image}..."""
+        )
         process_docker_image(image, version, repo_name, build_args, verbose, dryrun)
+
+    print(
+        """
+--------------------------------
+DONE"""
+    )
 
 
 if __name__ == "__main__":
