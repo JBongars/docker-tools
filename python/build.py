@@ -54,15 +54,10 @@ def get_jinja2_env():
     return jinja2.Environment(loader=jinja2.FileSystemLoader(jinja_path))
 
 
-def get_is_dryrun(args):
-    if "--dryrun" in args:
-        return True, args.remove("--dryrun")
-    return False, args
-
-
-def get_is_verbose(args):
-    if "--verbose" in args:
-        return True, args.remove("--verbose")
+def get_flag(flag, args):
+    if flag in args:
+        args.remove(flag)
+        return True, args
     return False, args
 
 
@@ -169,15 +164,24 @@ def process_docker_image(
 
 
 def run(args):
+    print("args= ", args)
+
     repo_name = get_repo_name()
     version = get_project_version_no()
-    verbose, args = get_is_verbose(args)
-    dryrun, args = get_is_dryrun(args)
+    verbose, args = get_flag("--verbose", args)
+    dryrun, args = get_flag("--dryrun", args)
 
-    build_args = args.join(" ")
+    print("args= ", args)
+
+    build_args = ""
+    image = ""
+
+    if len(args) > 0:
+        image = args[0]
+        build_args = " ".join(args[1:])
+
     print("build_args= ", build_args)
 
-    image = args[0]
     if image != "all" and len(args) > 0:
         build_args = " ".join(args[1:])
         return process_docker_image(
