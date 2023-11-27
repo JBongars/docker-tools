@@ -4,7 +4,7 @@
 # AND RUN python ^/python/build.py rust_ubuntu
 # ------------
 
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 # ubuntu Base
 RUN apt-get -y update && apt-get -y upgrade

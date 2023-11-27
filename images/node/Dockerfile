@@ -25,14 +25,18 @@ RUN apk add --no-cache  build-base \
 
 RUN pip install --upgrade pip
 
-RUN apk add --no-cache zsh fish
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
 RUN apk add --no-cache nodejs npm
 RUN npm i -g yarn
 
+# Image footer for quality of life improvements 
+
+RUN apk add util-linux
+
+RUN apk add zsh fish
+# RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
+COPY ./config.fish /root/fish/config.fish
 COPY ./onload.sh /root/onload.sh
 RUN dos2unix /root/.zshrc
 RUN dos2unix /root/onload.sh

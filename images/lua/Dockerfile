@@ -65,6 +65,7 @@ RUN apk add zsh fish
 # RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
+COPY ./config.fish /root/fish/config.fish
 COPY ./onload.sh /root/onload.sh
 RUN dos2unix /root/.zshrc
 RUN dos2unix /root/onload.sh

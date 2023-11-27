@@ -9,13 +9,13 @@ import shutil
 
 
 def get_template_header(image_name="<template>"):
-    return f'''
+    return f"""
 # THIS IS A GENERATED DOCKERFILE.
 # TO CHANGE, PLEASE MODIFY ^/templates/{image_name}.dockerfile.j2
 # AND RUN python ^/python/build.py {image_name}
 # ------------
 
-'''
+"""
 
 
 def get_package_json():
@@ -30,6 +30,10 @@ def get_project_version_no():
     return get_package_json()["version"]
 
 
+def get_project_extension():
+    return ".dockerfile.j2"
+
+
 def get_project_path():
     script_path = os.path.dirname(os.path.realpath(__file__))
     return os.path.abspath(os.path.join(script_path, ".."))
@@ -37,7 +41,7 @@ def get_project_path():
 
 def get_template_path():
     script_path = os.path.dirname(os.path.realpath(__file__))
-    template_path = os.path.join(script_path, '..', f"templates")
+    template_path = os.path.join(script_path, "..", f"templates")
     return os.path.abspath(template_path)
 
 
@@ -48,6 +52,24 @@ def get_repo_name():
 def get_jinja2_env():
     jinja_path = get_template_path()
     return jinja2.Environment(loader=jinja2.FileSystemLoader(jinja_path))
+
+
+def get_is_dryrun(args):
+    if "--dryrun" in args:
+        return True, args.remove("--dryrun")
+    return False, args
+
+
+def get_is_verbose(args):
+    if "--verbose" in args:
+        return True, args.remove("--verbose")
+    return False, args
+
+
+def get_all_templates():
+    extension = get_project_extension()
+    image_paths = glob.glob(os.path.join(get_project_path(), f"templates/*{extension}"))
+    return [os.path.basename(elem).replace(extension, "") for elem in image_paths]
 
 
 def save_file_to_path_with_safe_newline(source_path, destination_path):
@@ -90,21 +112,22 @@ def substitute_copy_paths(template, dockerfile_path):
             print(f"failed to copy {src} to {dest}")
             sys.exit(1)
 
-        template = template.replace(f"COPY {src} {dest}",
-                                    f"COPY ./{os.path.basename(dest)} {dest}")
+        template = template.replace(
+            f"COPY {src} {dest}", f"COPY ./{os.path.basename(dest)} {dest}"
+        )
     return template
 
 
 def generate_docker_image(dockerfile_path, image_name):
     env = get_jinja2_env()
-    template = env.get_template(f"{image_name}.dockerfile.j2")
+    extension = get_project_extension()
+    template = env.get_template(f"{image_name}{extension}")
     rendered_template = get_template_header(image_name) + template.render()
 
     if not os.path.exists(dockerfile_path):
         os.makedirs(dockerfile_path)
 
-    rendered_template = substitute_copy_paths(rendered_template,
-                                              dockerfile_path)
+    rendered_template = substitute_copy_paths(rendered_template, dockerfile_path)
 
     with open(f"{dockerfile_path}/Dockerfile", "w") as f:
         f.write(rendered_template)
@@ -114,59 +137,58 @@ def build_docker_image(dockerfile_path, local_tag_name, build_args):
     subprocess.run(
         f"docker build -t {local_tag_name} {build_args} {dockerfile_path}",
         shell=True,
-        check=True)
+        check=True,
+    )
 
 
 def tag_docker_image(current_tag, next_tag):
-    subprocess.run(f"docker tag {current_tag} {next_tag}",
-                   shell=True,
-                   check=True)
+    subprocess.run(f"docker tag {current_tag} {next_tag}", shell=True, check=True)
 
 
-def process_docker_image(image_name, version, repo_name, build_args):
-    print("build_args= ", build_args)
+def process_docker_image(
+    image_name, version, repo_name, build_args, verbose=False, dryrun=False
+):
     # weird quirk where docker needs the relative path not the abs path to build containers
     dockerfile_path = os.path.join(get_project_path(), "images", image_name)
 
     if not os.path.exists(dockerfile_path):
         os.makedirs(dockerfile_path)
-        print(f"Directory {dockerfile_path} created")
+        if verbose:
+            print(f"Directory {dockerfile_path} created")
 
     local_tag_name = f"dtools_{image_name}:latest"
-    tag_name = f"{repo_name}/dtools_{image_name}:{version}"
+    version_tag_name = f"{repo_name}/dtools_{image_name}:{version}"
     latest_tag_name = f"{repo_name}/dtools_{image_name}:latest"
 
     generate_docker_image(dockerfile_path, image_name)
-    build_docker_image(dockerfile_path, local_tag_name, build_args)
-    tag_docker_image(local_tag_name, tag_name)
-    tag_docker_image(local_tag_name, latest_tag_name)
 
-
-def build_all_images(build_args):
-    repo_name = get_repo_name()
-    version = get_project_version_no()
-    extension = ".dockerfile.j2"
-
-    image_paths = glob.glob(
-        os.path.join(get_project_path(), f"templates/*{extension}"))
-    images = [
-        os.path.basename(elem).replace(extension, "") for elem in image_paths
-    ]
-
-    for image in images:
-        process_docker_image(image, version, repo_name, build_args)
+    if not dryrun:
+        build_docker_image(dockerfile_path, local_tag_name, build_args)
+        tag_docker_image(local_tag_name, version_tag_name)
+        tag_docker_image(local_tag_name, latest_tag_name)
 
 
 def run(args):
     repo_name = get_repo_name()
     version = get_project_version_no()
+    verbose, args = get_is_verbose(args)
+    dryrun, args = get_is_dryrun(args)
 
-    if len(args) > 0:
-        image = args[0]
+    build_args = args.join(" ")
+    print("build_args= ", build_args)
+
+    image = args[0]
+    if image != "all" and len(args) > 0:
         build_args = " ".join(args[1:])
-        process_docker_image(image, version, repo_name, build_args)
-    else:
-        build_all_images("")
+        return process_docker_image(
+            image, version, repo_name, build_args, verbose, dryrun
+        )
+
+    images = get_all_templates()
+    for i, image in enumerate(images):
+        if verbose:
+            print(f"({i + 1} of {len(images)}) building {image}...)")
+        process_docker_image(image, version, repo_name, build_args, verbose, dryrun)
 
 
 if __name__ == "__main__":

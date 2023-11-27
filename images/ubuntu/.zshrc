@@ -49,3 +49,15 @@ do_until_sucess(){
   done
 }
 alias dus="do_until_sucess"
+
+alias gb="
+  git for-each-ref \
+    --sort='-committerdate:iso8601' \
+    --format='%(committerdate:relative)|%(refname:short)|%(committername)' \
+    refs/heads/ | column -s '|' -t"
+
+alias gbh="
+  git for-each-ref \
+    --sort='-committerdate:iso8601' \
+    --format='%(committerdate:relative)|%(refname:short)|%(committername)' \
+    refs/remotes/ | column -s '|' -t"
