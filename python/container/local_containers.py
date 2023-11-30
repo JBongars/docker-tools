@@ -21,15 +21,17 @@ def get_local_dockerfile(path="."):
     if len(files) == 1:
         return files[0]
 
-    print(f'Multiple Dockerfiles found...')
+    print(f"Multiple Dockerfiles found...")
     for file in files:
-        print(f'- {file}')
+        print(f"- {file}")
 
     # prefer Dockerfile.dev* over Dockerfile
     for file in files:
         if "Dockerfile.dev" in file:
             return file
 
+    # use the first one
+    print(f"Using {files[0]}...")
     return files[0]
 
 
@@ -50,17 +52,18 @@ def run_local_container(path, args_string):
     image_name = f"dlocal-{id}"
 
     print(f"Building image {image_name}...")
-    subprocess.run(
-        f"docker build {path} -f {dockerfile} -t {image_name}:latest")
+    subprocess.run(f"docker build {path} -f {dockerfile} -t {image_name}:latest")
+
+    command = f"docker run -it {attach_work()}  {set_hostname(container_hostname)} {attach_git()} --rm {args_string} {image_name}"
+    print("Running command...")
+    print(command)
 
     try:
-        subprocess.run(
-            f"docker run -it {attach_work()}  {set_hostname(container_hostname)} {attach_git()} --rm {args_string} {image_name}"
-        )
+        subprocess.run(command, shell=True, check=True)
     except:
         print(f"Container '{image_name}' exited or could not be run.")
 
-    print('Cleaning up...')
+    print("Cleaning up...")
     subprocess.run(f"docker rmi {image_name}")
 
     sys.exit(0)
