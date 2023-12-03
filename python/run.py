@@ -1,10 +1,12 @@
 import sys
-import container.run as container
-import build
-import clean
-import install
-import push
 import docker
+
+import container.run as container
+import kube.run as kube
+import build as build
+import clean as clean
+import install as install
+import push as push
 
 
 def is_docker_in_env():
@@ -22,14 +24,15 @@ def is_docker_in_env():
 
 
 def usage():
-    help_message = '''
+    help_message = """
 Usage: de <comand> <...args>
 de r|run     = run a container with attached shell
+de k|kube    = kubernetes developer mode
 de b|build   = build a container and tag it with <repo>/dtools-<container-name>
 de c|clean   = remove all local instances of dtools containers
 de install   = creates an alias in $PROFILE or .bashrc or .zshrc so you can call this script using "de"
 de push      = pushes all local dtool containers to docker hub
-    '''
+    """
     print(help_message)
 
 
@@ -46,6 +49,8 @@ def run():
 
     if command in ["r", "run"]:
         container.run(args)
+    elif command in ["k", "kube"]:
+        kube.run(args)
     elif command in ["b", "build"]:
         build.run(args)
     elif command in ["c", "clean"]:
