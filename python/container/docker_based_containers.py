@@ -41,22 +41,35 @@ def safely_exec_container(container_id, exec_string):
 
 
 def run_dood_container(
-    image_name, base_command, args_string, exec_string=DEFAULT_EXEC_STRING
+    image_name,
+    base_command,
+    args_string,
+    hostname=None,
+    exec_string=DEFAULT_EXEC_STRING,
 ):
-    hostname = f"dtools-{image_name}-dood"
-    cmd = f"{base_command} {set_hostname(hostname)} -v /var/run/docker.sock:/var/run/docker.sock {args_string} {image_name} {exec_string}"
+    if hostname is None:
+        hostname = f"dtools-{image_name}-dood"
+    cmd = f"{base_command} -v /var/run/docker.sock:/var/run/docker.sock {set_hostname(hostname)} {args_string} {image_name} {exec_string}"
+
+    print("Running command: ", cmd)
     return subprocess.run(cmd, shell=True, check=True)
 
 
 def run_dind_container(
-    image_name, base_command, args_string, exec_dind_string=DEFAULT_EXEC_STRING
+    image_name,
+    base_command,
+    args_string,
+    hostname=None,
+    exec_dind_string=DEFAULT_EXEC_STRING,
 ):
-    hostname = f"dtools-{image_name}-dind"
+    if hostname is None:
+        hostname = f"dtools-{image_name}-dind"
 
     # privileged is required for docker in docker
     # docs: https://hub.docker.com/_/docker > Rootless
-    cmd = f"{base_command} {set_hostname(hostname)} --privileged {args_string} {image_name}"
+    cmd = f"{base_command} -d --privileged {set_hostname(hostname)} {args_string} {image_name}"
 
+    print("Running command: ", cmd)
     subprocess.run(cmd, shell=True, check=True)
     container_id = (
         subprocess.check_output(f"docker ps -q -f ancestor={image_name}", shell=True)
@@ -88,19 +101,25 @@ def run_docker_container(
 def ddocker(args_string):
     image_name = get_dtools_image_name("docker")
     dood_command = f"docker run -ti {attach_work()} {attach_git()} --rm"
-    dind_command = f"docker run -d {attach_work()} {attach_git()}"
-    run_docker_container(image_name, dood_command, dind_command, args_string, "fish")
+    dind_command = f"docker run {attach_work()} {attach_git()}"
+    run_docker_container(
+        image_name, dood_command, dind_command, args_string, exec_dind_string="fish"
+    )
 
 
 def kube(args_string):
     image_name = get_dtools_image_name("kube")
     dood_command = f"docker run -ti {attach_work()} {attach_git()} --rm"
-    dind_command = f"docker run -d {attach_work()} {attach_git()}"
-    run_docker_container(image_name, dood_command, dind_command, args_string, "fish")
+    dind_command = f"docker run {attach_work()} {attach_git()}"
+    run_docker_container(
+        image_name, dood_command, dind_command, args_string, exec_dind_string="fish"
+    )
 
 
 def awskube(args_string):
     image_name = get_dtools_image_name("awskube")
     dood_command = f"docker run -it {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws --rm"
-    dind_command = f"docker run -d {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws"
-    run_docker_container(image_name, dood_command, dind_command, args_string, "fish")
+    dind_command = f"docker run {attach_work()} {attach_git()} -v {os.path.expanduser('~')}/.aws:/root/.aws"
+    run_docker_container(
+        image_name, dood_command, dind_command, args_string, exec_dind_string="fish"
+    )

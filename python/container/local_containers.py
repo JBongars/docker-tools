@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 
+from .docker_based_containers import run_dind_container, run_dood_container
 from .utils import attach_git, attach_work, getcwd, set_hostname
 
 
@@ -54,12 +55,32 @@ def run_local_container(path, args_string):
     print(f"Building image {image_name}...")
     subprocess.run(f"docker build {path} -f {dockerfile} -t {image_name}:latest")
 
-    command = f"docker run -it {attach_work()}  {set_hostname(container_hostname)} {attach_git()} --rm {args_string} {image_name}"
-    print("Running command...")
-    print(command)
+    command = f"docker run {attach_work()} {attach_git()}"
 
     try:
-        subprocess.run(command, shell=True, check=True)
+        if "--dood" in args_string:
+            args_string = args_string.replace("--dood", "")
+            command = f"{command} -it --rm"
+            return run_dood_container(
+                image_name,
+                command,
+                args_string,
+                hostname=container_hostname,
+            )
+        elif "--dind" in args_string:
+            args_string = args_string.replace("--dind", "")
+            return run_dind_container(
+                image_name, command, args_string, hostname=container_hostname
+            )
+        else:
+            print("Running command...")
+            print(command)
+
+            subprocess.run(
+                f"{command} -it --rm {set_hostname(container_hostname)} {args_string} {image_name}",
+                shell=True,
+                check=True,
+            )
     except:
         print(f"Container '{image_name}' exited or could not be run.")
 
