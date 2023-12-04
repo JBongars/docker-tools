@@ -86,10 +86,9 @@ def create_temp_dockerfile(image, image_version, base):
         f.write(f"FROM {image}:{image_version}\n")
         f.write(base)
         f.write("\n")
-        f.write("CMD [\"/bin/zsh\"]")
+        f.write('CMD ["/bin/fish"]')
 
-    copy_tree(f"{get_templates_path()}/scripts/",
-              f"{docker_folder_path}/scripts/")
+    copy_tree(f"{get_templates_path()}/scripts/", f"{docker_folder_path}/scripts/")
 
     return docker_folder_path
 
@@ -141,8 +140,7 @@ def run_temp_container(image, args_string):
         build_args.append("--no-cache")
 
     dockerfile_path = create_temp_dockerfile(image_name, image_version, base)
-    tag = build_temp_image(image_name, image_version, build_args,
-                           dockerfile_path)
+    tag = build_temp_image(image_name, image_version, build_args, dockerfile_path)
     command = f"docker run -it {attach_git()} {attach_work()}  {set_hostname(hostname)} --rm {args_string} {tag}"
     print(command)
 
@@ -151,5 +149,5 @@ def run_temp_container(image, args_string):
     except:
         print(f"Container '{image_name}' exited or could not be run.")
 
-    print('Cleaning up...')
+    print("Cleaning up...")
     clean_up_dockerfile(dockerfile_path, tag)
