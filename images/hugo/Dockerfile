@@ -24,7 +24,9 @@ RUN apk add --no-cache  build-base \
                         dos2unix
 
 RUN pip install --upgrade pip
-RUN apk add hugo
+RUN apk add go
+RUN CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest && \
+    mv "$(go env GOPATH)/bin/hugo" /usr/bin/hugo
 
 # Image footer for quality of life improvements 
 

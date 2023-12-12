@@ -1,6 +1,8 @@
 {% include './base_images/alpine.latest.j2' %}
 
 {% include './modules/alpine/base.j2' %}
-RUN apk add hugo
+RUN apk add go
+RUN CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest && \
+    mv "$(go env GOPATH)/bin/hugo" /usr/bin/hugo
 
 {% include './modules/alpine/footer.j2' %}
