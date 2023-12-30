@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ssh-ingress
+  namespace: development
+spec:
+  rules:
+  - host: ssh.cluster.local # Replace with the actual hostname you'll use
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: terminal-ssh-service # The service that you should create for SSH
+            port:
+              number: 22
