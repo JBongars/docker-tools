@@ -46,6 +46,12 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
 RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 RUN mv terraform /usr/bin/terraform
+# Install hashicorp Packer
+
+RUN curl -L https://releases.hashicorp.com/packer/1.10.0/packer_1.10.0_linux_amd64.zip -o /tmp/packer.zip && \
+    unzip /tmp/packer.zip -d /usr/local/bin && \
+    rm /tmp/packer.zip
+    
 COPY ./vault.tar.gz /tmp/vault.tar.gz
 RUN tar -xzf /tmp/vault.tar.gz -C /tmp/ && rm /tmp/vault.tar.gz
 RUN mv /tmp/vault/vault /usr/local/bin/vault && rm -rf /tmp/vault
