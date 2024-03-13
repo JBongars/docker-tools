@@ -1,5 +1,6 @@
 import os
 import subprocess
+import codecs
 
 
 def get_current_path():
@@ -36,14 +37,27 @@ def get_profile_path():
         exit(1)
 
 
+def get_file_encoding(path):
+    with open(path, "rb") as f:
+        raw = f.read(4)
+    if raw.startswith(codecs.BOM_UTF8):
+        return "utf-8-sig"
+    if raw == b"\x00\x00\xFE\xFF":
+        return "utf-32-be"
+    if raw == b"\xFF\xFE\x00\x00":
+        return "utf-32-le"
+    if raw.startswith(b"\xFF\xFE"):
+        return "utf-16-le"
+    if raw.startswith(b"\xFE\xFF"):
+        return "utf-16-be"
+    return "utf-8"
+
+
 def read_file(path):
     if os.name == "nt":
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return f.read()
-        except UnicodeDecodeError:
-            with open(path, "r", encoding="utf-16") as f:
-                return f.read()
+        encoding = get_file_encoding(path)
+        with open(path, "r", encoding=encoding) as f:
+            return f.read()
     else:
         with open(path, "r") as f:
             return f.read()
@@ -51,7 +65,8 @@ def read_file(path):
 
 def append_to_file(path, content):
     if os.name == "nt":
-        with open(path, "a", encoding="utf-16") as f:
+        encoding = get_file_encoding(path)
+        with open(path, "a", encoding=encoding) as f:
             f.write(content)
     else:
         with open(path, "a") as f:
