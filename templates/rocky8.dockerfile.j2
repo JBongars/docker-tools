@@ -1,0 +1,7 @@
+{% include './base_images/rockylinux.8.j2' %}
+
+RUN yum install -y epel-release
+
+{% include './modules/rhel/base.j2' %}
+
+{% include './modules/rhel/footer.j2' %}    

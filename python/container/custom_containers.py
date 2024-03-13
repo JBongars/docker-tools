@@ -1,6 +1,12 @@
 import subprocess
 
-from .utils import get_dtools_image_name, gethomedir, attach_git, attach_work, set_hostname
+from .utils import (
+    get_dtools_image_name,
+    gethomedir,
+    attach_git,
+    attach_work,
+    set_hostname,
+)
 
 
 def availalbe_containers():
@@ -9,7 +15,7 @@ def availalbe_containers():
         "dubuntu": dubuntu,
         "aws": aws,
         "github_actions": github_actions,
-        "ngrok": ngrok
+        "ngrok": ngrok,
     }
 
 
@@ -41,8 +47,7 @@ def aws(args_string):
 
 
 def ngrok(args_string):
-    run_command(
-        f"docker run --network host --rm {args_string} dtools_ngrok:latest")
+    run_command(f"docker run --network host --rm {args_string} dtools_ngrok:latest")
 
 
 def github_actions(args_string):

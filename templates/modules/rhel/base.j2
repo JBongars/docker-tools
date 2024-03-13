@@ -1,0 +1,17 @@
+# RHEL Base
+RUN yum update -y  yum upgrade -y
+
+RUN yum install -y \
+    python3 \
+    python3-pip \
+    git \
+    npm \
+    curl \
+    wget \
+    vim \
+    bash \
+    unzip \
+    jq \
+    dos2unix
+
+RUN pip3 install --upgrade pip
