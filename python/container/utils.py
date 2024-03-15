@@ -35,7 +35,7 @@ def cache_no_args(f: callable) -> callable:
 
 
 def getcwd():
-    return f"\"{os.getcwd()}\""
+    return f'"{os.getcwd()}"'
 
 
 def get_repository_no_cache():
@@ -62,6 +62,16 @@ def gethomedir():
     return f"\"{os.path.expanduser('~')}\""
 
 
+def gettempdir():
+    if os.path.exists(os.environ["TEMP"]):
+        return os.environ["TEMP"]
+    if os.path.exists("/usr/tmp"):
+        return "/usr/tmp"
+    if os.path.exists("/tmp"):
+        return "/tmp"
+    return None
+
+
 def attach_git():
     return f"-v {gethomedir()}/.gitconfig:/root/.gitconfig -v {gethomedir()}/.netrc:/root/.netrc -v {gethomedir()}/.ssh:/root/.ssh -v {gethomedir()}/.git-credentials:/root/.git-credentials"
 
@@ -69,9 +79,11 @@ def attach_git():
 def attach_work():
     return f"-v {getcwd()}:/work"
 
+
 def set_hostname(name):
-    sanitized_name = re_sub(r'[^a-z0-9\-]+', '-', name.lower())
+    sanitized_name = re_sub(r"[^a-z0-9\-]+", "-", name.lower())
     return f"--hostname {sanitized_name}"
+
 
 def check_if_docker_image_exists_local(image_name, version="latest"):
     try:

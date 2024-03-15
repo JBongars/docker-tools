@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import time
 
-from .utils import attach_git, attach_work, getcwd, set_hostname
+from .utils import attach_git, attach_work, getcwd, set_hostname, gettempdir
 
 
 def get_templates_path():
@@ -60,18 +60,8 @@ def get_base(image_os):
     return base_content
 
 
-def get_temp_folder_path():
-    if os.path.exists(os.environ["TEMP"]):
-        return os.environ["TEMP"]
-    if os.path.exists("/usr/tmp"):
-        return "/usr/tmp"
-    if os.path.exists("/tmp"):
-        return "/tmp"
-    return None
-
-
 def create_temp_dockerfile(image, image_version, base):
-    temp_folder_path = get_temp_folder_path()
+    temp_folder_path = gettempdir()
     if temp_folder_path is None:
         print("Could not find a temp folder. Creating...")
         os.mkdir(os.path.join(getcwd(), ".dtemp"))

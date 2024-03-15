@@ -20,7 +20,9 @@ RUN yum install -y \
     bash \
     unzip \
     jq \
-    dos2unix
+    dos2unix \
+    findutils \
+    yum-utils
 
 RUN pip3 install --upgrade pip
 

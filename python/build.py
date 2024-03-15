@@ -54,6 +54,13 @@ def get_jinja2_env():
     return jinja2.Environment(loader=jinja2.FileSystemLoader(jinja_path))
 
 
+def get_jinja2_template_path(image_name):
+    template_path = os.path.join(get_template_path(), f"{image_name}.dockerfile.j2")
+    if os.path.exists(template_path):
+        return template_path
+    return ""
+
+
 def get_flag(flag, args):
     if flag in args:
         args.remove(flag)
@@ -119,7 +126,7 @@ def substitute_copy_paths(template, dockerfile_path, verbose):
 def generate_docker_image(dockerfile_path, image_name, verbose):
     env = get_jinja2_env()
     extension = get_project_extension()
-    template = env.get_template(f"{image_name}{extension}")
+    template = env.get_template(f"{image_name:}{extension}")
     rendered_template = get_template_header(image_name) + template.render()
 
     if not os.path.exists(dockerfile_path):
@@ -160,7 +167,10 @@ def process_docker_image(
     version_tag_name = f"{repo_name}/dtools_{image_name}:{version}"
     latest_tag_name = f"{repo_name}/dtools_{image_name}:latest"
 
-    generate_docker_image(dockerfile_path, image_name, verbose)
+    if get_jinja2_template_path(image_name) != "":
+        generate_docker_image(dockerfile_path, image_name, verbose)
+    else:
+        print(f"Template for {image_name} not found... using image path as is.")
 
     if not dryrun:
         build_docker_image(dockerfile_path, local_tag_name, build_args)
