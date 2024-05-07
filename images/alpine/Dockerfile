@@ -29,7 +29,7 @@ RUN pip install --upgrade pip
 
 RUN apk add util-linux
 
-RUN apk add zsh fish
+RUN apk add zsh fish tmux
 # RUN git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 
 COPY ./.zshrc /root/.zshrc
